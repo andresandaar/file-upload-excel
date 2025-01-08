@@ -7,7 +7,7 @@
  * - Procesar los datos y convertirlos a formato JSON
  * - Emitir los datos procesados al componente padre
  */
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component,  Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,7 @@ import { EXCEL_CONSUMIBLES_CONFIG } from '../../config/excel-config';
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss']
 })
-export class FileUploadComponent implements OnInit {
+export class FileUploadComponent {
   @Output() dataLoaded = new EventEmitter<unknown[]>();
   @ViewChild('fileInput', { static: true }) fileInput!: ElementRef<HTMLInputElement>;
 
@@ -45,7 +45,6 @@ export class FileUploadComponent implements OnInit {
     private readonly snackBar: MatSnackBar
   ) { }
 
-  ngOnInit(): void { }
 
   /**
    * Maneja el evento de arrastrar archivos sobre el componente

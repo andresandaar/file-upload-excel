@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnChanges, AfterViewInit, LOCALE_ID, ElementRef } from '@angular/core';
-import { CommonModule, registerLocaleData } from '@angular/common';
+import { Component, Input, Output, EventEmitter, ViewChild, OnChanges, AfterViewInit, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -11,85 +11,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatNativeDateModule, DateAdapter } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import localeEs from '@angular/common/locales/es';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DataPreviewRow, DisplayedColumn, ErrorsByRow, SelectOptions, ValidationError } from '../../models/data-preview.interface';
+import { CONSUMIBLE_FORMAT_DATA_BASE, CONSUMIBLE_FORMAT_EXCEL_HEADERS } from '../../config/consumible-format';
 
-registerLocaleData(localeEs);
 
-const MY_DATE_FORMATS = {
-  parse: {
-    dateInput: 'dd/MM/yyyy',
-  },
-  display: {
-    dateInput: 'dd/MM/yyyy',
-    monthYearLabel: 'MMM yyyy',
-    dateA11yLabel: 'dd/MM/yyyy',
-    monthYearA11yLabel: 'MMMM yyyy',
-  },
-};
 
-interface ValidationError {
-  row: number;
-  column: string;
-  message: string;
-  example?: string;
-}
 
-interface ExcelRow {
-  NOMBRE: string;
-  CATEGORIA: number;
-  CANTIDAD: number;
-  'CANTIDAD MINIMA': number;
-  FABRICANTE: number;
-  MODELO: string;
-  PROVEEDOR: number;
-  VALOR: number;
-  'NUMERO DE FACTURA': string;
-  'FECHA DE COMPRA': string;
-  OBSERVACIONES: string;
-  _errors?: { [key: string]: string };
-}
 
-/** 
- * Representa un error de validación con su ubicación y mensaje
- * @interface ValidationError
- */
-interface ValidationError {
-  row: number;
-  column: string;
-  message: string;
-  example?: string;
-}
-
-/** 
- * Agrupa los errores por fila para mostrarlos en el panel de expansión
- * @interface ErrorsByRow
- */
-interface ErrorsByRow {
-  row: number;
-  errors: ValidationError[];
-}
-
-/** 
- * Representa una opción en los selectores (categorías, fabricantes, proveedores)
- * @interface SelectOption
- */
-interface SelectOption {
-  id: number;
-  name: string;
-}
-
-/** 
- * Contiene las listas de opciones para los selectores
- * @interface SelectOptions
- */
-interface SelectOptions {
-  categorias: SelectOption[];
-  fabricantes: SelectOption[];
-  proveedores: SelectOption[];
-}
 
 /**
  * Componente para visualizar, validar y editar datos importados desde Excel
@@ -120,11 +51,6 @@ interface SelectOptions {
     MatNativeDateModule,
     MatSelectModule
   ],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'es' },
-    { provide: MAT_DATE_LOCALE, useValue: 'es' },
-    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }
-  ],
   host: {
     '(document:click)': 'onDocumentClick($event)',
   },
@@ -137,13 +63,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   @Input() set data(value: unknown[]) {
     if (value) {
-      const processedDataFinal: ExcelRow[] = this.transformData(value as any[]);
-
-      if (processedDataFinal.length === 0) {
-        this.showError('No se encontraron datos válidos en el archivo');
-        return;
-      }
-
+      const processedDataFinal: DataPreviewRow[] = this.transformData(value as any[]);
       this.validateData(processedDataFinal);
       this.dataSource.data = processedDataFinal;
       this.updateErrorsByRow();
@@ -153,7 +73,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
   /**
    * Evento que emite los datos validados al componente padre
    */
-  @Output() submitData = new EventEmitter<ExcelRow[]>();
+  @Output() submitData = new EventEmitter<DataPreviewRow[]>();
 
   /**
    * Referencias a componentes de Material
@@ -162,24 +82,29 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('container')
   container!: ElementRef;
-
+  consumibleFormatDataBase = CONSUMIBLE_FORMAT_DATA_BASE
+  consumibleFormatExcelHeaders = CONSUMIBLE_FORMAT_EXCEL_HEADERS
   /**
    * Fuente de datos para la tabla
    */
-  dataSource = new MatTableDataSource<ExcelRow>([]);
-  displayedColumns: string[] = [
-    'NOMBRE',
-    'CATEGORIA',
-    'CANTIDAD',
-    'CANTIDAD MINIMA',
-    'FABRICANTE',
-    'MODELO',
-    'PROVEEDOR',
-    'VALOR',
-    'NUMERO DE FACTURA',
-    'FECHA DE COMPRA',
-    'OBSERVACIONES'
+  dataSource = new MatTableDataSource<DataPreviewRow>([]);
+
+
+  displayedColumnsConfig: DisplayedColumn[] = [
+    { name: this.consumibleFormatDataBase.NOMBRE, label: 'Nombre del Producto' },
+    { name: this.consumibleFormatDataBase.CATEGORIA, label: 'Categoría' },
+    { name: this.consumibleFormatDataBase.CANTIDAD, label: 'Cantidad en Stock' },
+    { name: this.consumibleFormatDataBase.CANTIDAD_MINIMA, label: 'Cantidad Mínima' },
+    { name: this.consumibleFormatDataBase.FABRICANTE, label: 'Fabricante' },
+    { name: this.consumibleFormatDataBase.MODELO, label: 'Modelo' },
+    { name: this.consumibleFormatDataBase.PROVEEDOR, label: 'Proveedor' },
+    { name: this.consumibleFormatDataBase.VALOR, label: 'Valor Unitario' },
+    { name: this.consumibleFormatDataBase.NUMERO_DE_FACTURA, label: 'Número de Factura' },
+    { name: this.consumibleFormatDataBase.FECHA_DE_COMPRA, label: 'Fecha de Compra' },
+    { name: this.consumibleFormatDataBase.OBSERVACIONES, label: 'Observaciones' },
   ];
+
+
   validationErrors: ValidationError[] = [];
   errorsByRow: ErrorsByRow[] = [];
   editingCell: { row: number, column: string } | null = null;
@@ -262,7 +187,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param column Columna a editar
    * @param rowIndex Índice de la fila
    */
-  startEditing(event: MouseEvent, row: ExcelRow, column: string, rowIndex: number) {
+  startEditing(event: MouseEvent, row: DataPreviewRow, column: string, rowIndex: number) {
     event.stopPropagation();
     this.editingCell = { row: rowIndex, column };
   }
@@ -284,7 +209,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param rowIndex Índice de la fila
    * @returns true si la celda está en edición
    */
-  isEditing(row: ExcelRow, column: string, rowIndex: number): boolean {
+  isEditing(row: DataPreviewRow, column: string, rowIndex: number): boolean {
     return this.editingCell?.row === rowIndex && this.editingCell?.column === column;
   }
 
@@ -295,16 +220,17 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   getInputType(column: string): string {
     switch (column) {
-      case 'CANTIDAD':
-      case 'CANTIDAD MINIMA':
-      case 'VALOR':
+      case this.consumibleFormatDataBase.CANTIDAD:
+      case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
+      case this.consumibleFormatDataBase.VALOR:
         return 'number';
-      case 'FECHA DE COMPRA':
+      case this.consumibleFormatDataBase.FECHA_DE_COMPRA:
         return 'date';
       default:
         return 'text';
     }
   }
+
 
   /**
    * Parsea una fecha desde un string
@@ -363,23 +289,24 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
     let fabricante;
     let proveedor;
     let date;
+
     switch (column) {
-      case 'CATEGORIA':
+      case this.consumibleFormatDataBase.CATEGORIA:
         categoria = this.selectOptions.categorias.find(c => c.id === value);
         return categoria ? categoria.name : value;
-      case 'FABRICANTE':
+      case this.consumibleFormatDataBase.FABRICANTE:
         fabricante = this.selectOptions.fabricantes.find(f => f.id === value);
         return fabricante ? fabricante.name : value;
-      case 'PROVEEDOR':
+      case this.consumibleFormatDataBase.PROVEEDOR:
         proveedor = this.selectOptions.proveedores.find(p => p.id === value);
         return proveedor ? proveedor.name : value;
-      case 'VALOR':
+      case this.consumibleFormatDataBase.VALOR:
         return new Intl.NumberFormat('es-CO', {
           style: 'currency',
           currency: 'COP',
           minimumFractionDigits: 0
         }).format(value);
-      case 'FECHA DE COMPRA':
+      case this.consumibleFormatDataBase.FECHA_DE_COMPRA:
         if (!value) return '';
         date = value instanceof Date ? value : this.parseDate(value);
         if (!date) return value;
@@ -393,6 +320,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
     }
   }
 
+
   /**
    * Obtiene un ejemplo para una columna
    * @param column Nombre de la columna
@@ -400,32 +328,33 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   getExample(column: string): string {
     switch (column) {
-      case 'NOMBRE':
+      case this.consumibleFormatDataBase.NOMBRE:
         return 'Ej: Tornillo hexagonal M8';
-      case 'CATEGORIA':
+      case this.consumibleFormatDataBase.CATEGORIA:
         return 'Ej: Ferretería';
-      case 'CANTIDAD':
+      case this.consumibleFormatDataBase.CANTIDAD:
         return 'Ej: 100';
-      case 'CANTIDAD MINIMA':
+      case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
         return 'Ej: 10';
-      case 'FABRICANTE':
+      case this.consumibleFormatDataBase.FABRICANTE:
         return 'Ej: ACME Tools';
-      case 'MODELO':
+      case this.consumibleFormatDataBase.MODELO:
         return 'Ej: THX-M8-50';
-      case 'PROVEEDOR':
+      case this.consumibleFormatDataBase.PROVEEDOR:
         return 'Ej: Ferretería Central';
-      case 'VALOR':
+      case this.consumibleFormatDataBase.VALOR:
         return 'Ej: 5000';
-      case 'NUMERO DE FACTURA':
+      case this.consumibleFormatDataBase.NUMERO_DE_FACTURA:
         return 'Ej: FAC-2025-001';
-      case 'FECHA DE COMPRA':
+      case this.consumibleFormatDataBase.FECHA_DE_COMPRA:
         return 'DD/MM/YYYY';
-      case 'OBSERVACIONES':
+      case this.consumibleFormatDataBase.OBSERVACIONES:
         return 'Ej: Material acero inoxidable';
       default:
         return '';
     }
   }
+
 
   /**
    * Envía los datos validados al componente padre
@@ -437,6 +366,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
         const { _errors, ...cleanRow } = row;
         return cleanRow;
       });
+      console.log(cleanData)
       this.submitData.emit(cleanData);
     }
   }
@@ -459,7 +389,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param column Columna a verificar
    * @returns true si la celda tiene errores
    */
-  hasErrorInCell(row: ExcelRow, column: string): boolean {
+  hasErrorInCell(row: DataPreviewRow, column: string): boolean {
     return row._errors ? !!row._errors[column] : false;
   }
 
@@ -468,7 +398,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param row Fila a verificar
    * @returns true si la fila tiene errores
    */
-  hasErrors(row: ExcelRow): boolean {
+  hasErrors(row: DataPreviewRow): boolean {
     return row._errors ? Object.keys(row._errors).length > 0 : false;
   }
 
@@ -477,9 +407,9 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param row Fila a verificar
    * @returns true si la fila tiene errores de cantidad
    */
-  hasQuantityError(row: ExcelRow): boolean {
-    const cantidad = Number(row.CANTIDAD);
-    const cantidadMinima = Number(row['CANTIDAD MINIMA']);
+  hasQuantityError(row: DataPreviewRow): boolean {
+    const cantidad = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD]);
+    const cantidadMinima = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]);
     return !isNaN(cantidad) && !isNaN(cantidadMinima) &&
       (cantidad < cantidadMinima || cantidad < 0);
   }
@@ -488,7 +418,12 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * Valida todos los datos de la tabla
    * @param data Datos a validar
    */
-  private validateData(data: ExcelRow[]): void {
+  private validateData(data: DataPreviewRow[]): void {
+    if (data.length === 0) {
+      this.showError('No se encontraron datos válidos en el archivo');
+      return;
+    }
+
     this.validationErrors = [];
 
     data.forEach((row, index) => {
@@ -511,12 +446,12 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param key Nombre del campo
    * @param value Valor a validar
    */
-  private validateField(row: ExcelRow, rowIndex: number, key: string, value: any): void {
+  private validateField(row: DataPreviewRow, rowIndex: number, key: string, value: any): void {
     let error = null;
     let example: string | undefined = undefined;
 
     // Convert string numbers to actual numbers for select fields
-    if (['CATEGORIA', 'FABRICANTE', 'PROVEEDOR'].includes(key) && typeof value === 'string') {
+    if ([this.consumibleFormatDataBase.CATEGORIA, this.consumibleFormatDataBase.FABRICANTE, this.consumibleFormatDataBase.PROVEEDOR].includes(key as CONSUMIBLE_FORMAT_DATA_BASE) && typeof value === 'string') {
       const numValue = parseInt(value, 10);
       if (!isNaN(numValue)) {
         (row as any)[key] = numValue;
@@ -544,29 +479,30 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   private getExampleForEmptyField(key: string): string | undefined {
     switch (key) {
-      case 'CATEGORIA':
+      case this.consumibleFormatDataBase.CATEGORIA:
         return `${this.selectOptions.categorias[0].id} (${this.selectOptions.categorias[0].name})`;
-      case 'FABRICANTE':
+      case this.consumibleFormatDataBase.FABRICANTE:
         return `${this.selectOptions.fabricantes[0].id} (${this.selectOptions.fabricantes[0].name})`;
-      case 'PROVEEDOR':
+      case this.consumibleFormatDataBase.PROVEEDOR:
         return `${this.selectOptions.proveedores[0].id} (${this.selectOptions.proveedores[0].name})`;
-      case 'FECHA DE COMPRA':
+      case this.consumibleFormatDataBase.FECHA_DE_COMPRA:
         return '01/01/2025';
-      case 'CANTIDAD':
-      case 'CANTIDAD MINIMA':
+      case this.consumibleFormatDataBase.CANTIDAD:
+      case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
         return '1';
-      case 'VALOR':
+      case this.consumibleFormatDataBase.VALOR:
         return '1000';
-      case 'NOMBRE':
+      case this.consumibleFormatDataBase.NOMBRE:
         return 'Tornillo hexagonal M8';
-      case 'MODELO':
+      case this.consumibleFormatDataBase.MODELO:
         return 'THX-M8-50';
-      case 'NUMERO DE FACTURA':
+      case this.consumibleFormatDataBase.NUMERO_DE_FACTURA:
         return 'FAC-2025-001';
       default:
         return undefined;
     }
   }
+
 
   /**
    * Obtiene un error para un campo específico
@@ -575,27 +511,28 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param row Fila que contiene el campo
    * @returns Error para el campo
    */
-  private getErrorForField(key: string, value: any, row: ExcelRow): string | null {
+  private getErrorForField(key: string, value: any, row: DataPreviewRow): string | null {
     switch (key) {
-      case 'CATEGORIA':
+      case this.consumibleFormatDataBase.CATEGORIA:
         return this.validateCategoria(value);
-      case 'FABRICANTE':
+      case this.consumibleFormatDataBase.FABRICANTE:
         return this.validateFabricante(value);
-      case 'PROVEEDOR':
+      case this.consumibleFormatDataBase.PROVEEDOR:
         return this.validateProveedor(value);
-      case 'FECHA DE COMPRA':
+      case this.consumibleFormatDataBase.FECHA_DE_COMPRA:
         return this.validateFechaDeCompra(value);
-      case 'CANTIDAD':
-      case 'CANTIDAD MINIMA':
+      case this.consumibleFormatDataBase.CANTIDAD:
+      case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
         return this.validateCantidad(value);
-      case 'VALOR':
+      case this.consumibleFormatDataBase.VALOR:
         return this.validateValor(value);
-      case 'NUMERO DE FACTURA':
+      case this.consumibleFormatDataBase.NUMERO_DE_FACTURA:
         return this.validateNumeroDeFactura(value);
       default:
         return this.validateAdditionalRules(key, value, row);
     }
   }
+
 
   /**
    * Valida la categoría
@@ -690,16 +627,17 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param row Fila que contiene el campo
    * @returns Error si el campo es inválido
    */
-  private validateAdditionalRules(key: string, value: any, row: ExcelRow): string | null {
-    if (key === 'CANTIDAD' && row['CANTIDAD MINIMA']) {
-      const cantidad = Number(row.CANTIDAD);
-      const cantidadMinima = Number(row['CANTIDAD MINIMA']);
+  private validateAdditionalRules(key: string, value: any, row: DataPreviewRow): string | null {
+    if (key === this.consumibleFormatDataBase.CANTIDAD && (row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]) {
+      const cantidad = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD]);
+      const cantidadMinima = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]);
       if (cantidad < cantidadMinima) {
         return 'La cantidad no puede ser menor que la cantidad mínima';
       }
     }
     return null;
   }
+
 
   /**
    * Obtiene un ejemplo para un campo
@@ -758,12 +696,10 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param event Evento del mouse
    */
   onDocumentClick(event: MouseEvent) {
-    console.log('Click fuera del contenedor');
     // Si el click fue dentro del contenedor, no hacemos nada
     if (this.container?.nativeElement.contains(event.target)) {
       return;
     }
-
     // Si hay una celda en edición, la cancelamos
     if (this.editingCell) {
       this.editingCell = null;
@@ -771,14 +707,14 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
   }
 
   /**
- * Transforma los datos JSON proporcionados en un array de objetos `ExcelRow`.
+ * Transforma los datos JSON proporcionados en un array de objetos `DataPreviewRow`.
  * 
  * @param jsonData - Un array de objetos que representan los datos JSON a transformar.
- * @returns Un array de objetos `ExcelRow` con los datos transformados, excluyendo la fila de encabezado.
+ * @returns Un array de objetos `DataPreviewRow` con los datos transformados, excluyendo la fila de encabezado.
  * 
  * El proceso de transformación incluye:
  * - Filtrar las filas donde todos los valores son cadenas vacías.
- * - Mapear cada fila a un objeto `ExcelRow` con propiedades específicas.
+ * - Mapear cada fila a un objeto `DataPreviewRow` con propiedades específicas.
  * - Analizar valores numéricos usando `processorService.parseNumber`.
  * - Formatear valores de fecha usando `processorService.formatDate`.
  * 
@@ -791,25 +727,28 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
  * console.log(transformedData);
  * ```
  */
-  transformData(jsonData: any[]): any[] {
+  transformData(jsonData: any[]): DataPreviewRow[] {
     console.log('jsonData', jsonData);
     return jsonData
       .filter(row => Object.values(row).some(value => value !== ''))
       .map(row => ({
-        NOMBRE: String(row.NOMBRE || ''),
-        CATEGORIA: String(row.CATEGORIA || ''),
-        CANTIDAD: this.parseNumber(row.CANTIDAD),
-        CANTIDAD_MINIMA: this.parseNumber(row['CANTIDAD MINIMA']),
-        FABRICANTE: String(row.FABRICANTE || ''),
-        MODELO: String(row.MODELO || ''),
-        PROVEEDOR: String(row.PROVEEDOR || ''),
-        VALOR: this.parseNumber(row.VALOR),
-        NUMERO_DE_FACTURA: String(row['NUMERO DE FACTURA'] || ''),
-        FECHA_DE_COMPRA: this.formatDate(row['FECHA DE COMPRA']),
-        OBSERVACIONES: String(row.OBSERVACIONES || '')
-      }))
+        [this.consumibleFormatDataBase.NOMBRE]: String(row[this.consumibleFormatExcelHeaders.NOMBRE] || ''),
+        [this.consumibleFormatDataBase.CATEGORIA]: String(row[this.consumibleFormatExcelHeaders.CATEGORIA] || ''),
+        [this.consumibleFormatDataBase.CANTIDAD]: this.parseNumber(row[this.consumibleFormatExcelHeaders.CANTIDAD]),
+        [this.consumibleFormatDataBase.CANTIDAD_MINIMA]: this.parseNumber(row[this.consumibleFormatExcelHeaders.CANTIDAD_MINIMA]),
+        [this.consumibleFormatDataBase.FABRICANTE]: String(row[this.consumibleFormatExcelHeaders.FABRICANTE] || ''),
+        [this.consumibleFormatDataBase.MODELO]: String(row[this.consumibleFormatExcelHeaders.MODELO] || ''),
+        [this.consumibleFormatDataBase.PROVEEDOR]: String(row[this.consumibleFormatExcelHeaders.PROVEEDOR] || ''),
+        [this.consumibleFormatDataBase.VALOR]: this.parseNumber(row[this.consumibleFormatExcelHeaders.VALOR]),
+        [this.consumibleFormatDataBase.NUMERO_DE_FACTURA]: String(row[this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA] || ''),
+        [this.consumibleFormatDataBase.FECHA_DE_COMPRA]: this.formatDate(row[this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA]),
+        [this.consumibleFormatDataBase.OBSERVACIONES]: String(row[this.consumibleFormatExcelHeaders.OBSERVACIONES]|| '')
+      } as unknown as DataPreviewRow))
       .slice(1); // Remove header row
   }
+
+
+
   parseNumber(value: any): number {
     const parsed = Number(value);
     return isNaN(parsed) ? 0 : parsed;
@@ -825,5 +764,8 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
       verticalPosition: 'bottom',
       panelClass: ['error-snackbar']
     });
+  }
+  getDisplayedColumns(): string[] {
+    return this.displayedColumnsConfig.map(column => column.name);
   }
 }

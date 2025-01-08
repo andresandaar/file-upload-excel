@@ -6,67 +6,70 @@
 
   <div class="table-container mat-elevation-z8" #container>
     <table mat-table [dataSource]="dataSource" matSort aria-label="Data preview table">
-      <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </th>
-        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column)"
-          (click)="startEditing($event, row, column, i)">
-          <ng-container *ngIf="isEditing(row, column, i); else displayMode">
+      <!-- Iterar sobre displayedColumnsConfig para generar las columnas -->
+      <ng-container *ngFor="let column of displayedColumnsConfig" [matColumnDef]="column.name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+          {{ column.label }} <!-- Mostrar la etiqueta personalizada -->
+        </th>
+        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column.name)"
+          (click)="startEditing($event, row, column.name, i)">
+          <ng-container *ngIf="isEditing(row, column.name, i); else displayMode">
             <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-              <ng-container [ngSwitch]="column">
+              <ng-container [ngSwitch]="column.name">
                 <!-- Select for CATEGORIA -->
-                <ng-container *ngSwitchCase="'CATEGORIA'">
-                  <mat-select [(ngModel)]="row[column]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column)">
+                <ng-container *ngSwitchCase="consumibleFormatDataBase.CATEGORIA">
+                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.name)">
                     <mat-option *ngFor="let cat of selectOptions.categorias" [value]="cat.id">
                       {{cat.name}}
                     </mat-option>
                   </mat-select>
                 </ng-container>
-
+    
                 <!-- Select for FABRICANTE -->
-                <ng-container *ngSwitchCase="'FABRICANTE'">
-                  <mat-select [(ngModel)]="row[column]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column)">
+                <ng-container *ngSwitchCase="consumibleFormatDataBase.FABRICANTE">
+                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.name)">
                     <mat-option *ngFor="let fab of selectOptions.fabricantes" [value]="fab.id">
                       {{fab.name}}
                     </mat-option>
                   </mat-select>
                 </ng-container>
-
+    
                 <!-- Select for PROVEEDOR -->
-                <ng-container *ngSwitchCase="'PROVEEDOR'">
-                  <mat-select [(ngModel)]="row[column]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column)">
+                <ng-container *ngSwitchCase="consumibleFormatDataBase.PROVEEDOR">
+                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.name)">
                     <mat-option *ngFor="let prov of selectOptions.proveedores" [value]="prov.id">
                       {{prov.name}}
                     </mat-option>
                   </mat-select>
                 </ng-container>
-
-                <!-- Date picker for FECHA DE COMPRA -->
-                <ng-container *ngSwitchCase="'FECHA DE COMPRA'">
-                  <input matInput [matDatepicker]="picker" [(ngModel)]="row[column]" (dateChange)="finishEditing()"
-                    [placeholder]="getExample(column)">
+    
+                <!-- Date picker for FECHA_DE_COMPRA -->
+                <ng-container *ngSwitchCase="consumibleFormatDataBase.FECHA_DE_COMPRA">
+                  <input matInput [matDatepicker]="picker" [(ngModel)]="row[column.name]" (dateChange)="finishEditing()"
+                    [placeholder]="getExample(column.name)">
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
                 </ng-container>
-
+    
                 <!-- Default input for other fields -->
                 <ng-container *ngSwitchDefault>
-                  <input matInput [(ngModel)]="row[column]" (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-                    [placeholder]="getExample(column)" [type]="getInputType(column)">
+                  <input matInput [(ngModel)]="row[column.name]" (blur)="finishEditing()" (keyup.enter)="finishEditing()"
+                    [placeholder]="getExample(column.name)" [type]="getInputType(column.name)">
                 </ng-container>
               </ng-container>
             </mat-form-field>
           </ng-container>
           <ng-template #displayMode>
-            {{formatCellValue(row[column], column)}}
+            {{ formatCellValue(row[column.name], column.name) }}
           </ng-template>
         </td>
       </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="hasErrors(row)"></tr>
+    
+      <tr mat-header-row *matHeaderRowDef="getDisplayedColumns(); sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();" [class.error-row]="hasErrors(row)"></tr>
     </table>
 
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Seleccionar página"></mat-paginator>
