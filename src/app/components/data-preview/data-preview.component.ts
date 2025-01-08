@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, OnChanges, AfterViewInit, LOCALE_ID, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, OnChanges, AfterViewInit, LOCALE_ID, ElementRef } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -14,6 +14,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import localeEs from '@angular/common/locales/es';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 registerLocaleData(localeEs);
 
@@ -130,14 +131,21 @@ interface SelectOptions {
   templateUrl: './data-preview.component.html',
   styleUrls: ['./data-preview.component.scss'],
 })
-export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
+export class DataPreviewComponent implements OnChanges, AfterViewInit {
   /**
    * Entrada de datos desde el componente padre
    */
-  @Input() set data(value: ExcelRow[]) {
+  @Input() set data(value: unknown[]) {
     if (value) {
-      this.validateData(value);
-      this.dataSource.data = value;
+      const processedDataFinal: ExcelRow[] = this.transformData(value as any[]);
+
+      if (processedDataFinal.length === 0) {
+        this.showError('No se encontraron datos válidos en el archivo');
+        return;
+      }
+
+      this.validateData(processedDataFinal);
+      this.dataSource.data = processedDataFinal;
       this.updateErrorsByRow();
     }
   }
@@ -220,14 +228,14 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
    * Constructor del componente
    * @param dateAdapter Adaptador de fechas
    */
-  constructor(private readonly dateAdapter: DateAdapter<Date>) {
+  constructor(private readonly dateAdapter: DateAdapter<Date>, private readonly snackBar: MatSnackBar) {
     this.dateAdapter.setLocale('es');
   }
 
   /**
    * Inicializa el componente
    */
-  ngOnInit(): void {}
+  // ngOnInit(): void {}
 
   /**
    * Inicializa la tabla después de que se hayan cargado los datos
@@ -305,29 +313,29 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
    */
   parseDate(dateStr: string): Date | null {
     if (!dateStr) return null;
-    
+
     // Handle "DD/MM/YYYY" format
     const parts = dateStr.split('/');
     if (parts.length === 3) {
       const day = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const year = parseInt(parts[2], 10);
-      
+
       // Validate day, month, and year
       if (month < 0 || month > 11) return null;
       if (day < 1 || day > 31) return null;
       if (year < 2000 || year > 2100) return null;
-      
+
       const date = new Date(year, month, day);
-      
+
       // Verify the date is valid (handles cases like 31/04/2025)
       if (date.getMonth() !== month || date.getDate() !== day || date.getFullYear() !== year) {
         return null;
       }
-      
+
       return date;
     }
-    
+
     return null;
   }
 
@@ -350,7 +358,7 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
    */
   formatCellValue(value: any, column: string): string {
     if (value === null || value === undefined) return '';
-    
+
     let categoria;
     let fabricante;
     let proveedor;
@@ -366,10 +374,10 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
         proveedor = this.selectOptions.proveedores.find(p => p.id === value);
         return proveedor ? proveedor.name : value;
       case 'VALOR':
-        return new Intl.NumberFormat('es-CO', { 
-          style: 'currency', 
+        return new Intl.NumberFormat('es-CO', {
+          style: 'currency',
           currency: 'COP',
-          minimumFractionDigits: 0 
+          minimumFractionDigits: 0
         }).format(value);
       case 'FECHA DE COMPRA':
         if (!value) return '';
@@ -472,8 +480,8 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
   hasQuantityError(row: ExcelRow): boolean {
     const cantidad = Number(row.CANTIDAD);
     const cantidadMinima = Number(row['CANTIDAD MINIMA']);
-    return !isNaN(cantidad) && !isNaN(cantidadMinima) && 
-           (cantidad < cantidadMinima || cantidad < 0);
+    return !isNaN(cantidad) && !isNaN(cantidadMinima) &&
+      (cantidad < cantidadMinima || cantidad < 0);
   }
 
   /**
@@ -482,17 +490,17 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
    */
   private validateData(data: ExcelRow[]): void {
     this.validationErrors = [];
-    
+
     data.forEach((row, index) => {
       row._errors = {};
-      
+
       Object.entries(row).forEach(([key, value]) => {
         if (key === '_errors') return;
-        
+
         this.validateField(row, index, key, value);
       });
     });
-    
+
     this.updateErrorsByRow();
   }
 
@@ -732,7 +740,7 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
    */
   updateErrorsByRow() {
     const errorMap = new Map<number, ValidationError[]>();
-    
+
     this.validationErrors.forEach(error => {
       if (!errorMap.has(error.row)) {
         errorMap.set(error.row, []);
@@ -755,10 +763,67 @@ export class DataPreviewComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.container?.nativeElement.contains(event.target)) {
       return;
     }
-    
+
     // Si hay una celda en edición, la cancelamos
     if (this.editingCell) {
       this.editingCell = null;
     }
+  }
+
+  /**
+ * Transforma los datos JSON proporcionados en un array de objetos `ExcelRow`.
+ * 
+ * @param jsonData - Un array de objetos que representan los datos JSON a transformar.
+ * @returns Un array de objetos `ExcelRow` con los datos transformados, excluyendo la fila de encabezado.
+ * 
+ * El proceso de transformación incluye:
+ * - Filtrar las filas donde todos los valores son cadenas vacías.
+ * - Mapear cada fila a un objeto `ExcelRow` con propiedades específicas.
+ * - Analizar valores numéricos usando `processorService.parseNumber`.
+ * - Formatear valores de fecha usando `processorService.formatDate`.
+ * 
+ * @example
+ * ```typescript
+ * const jsonData = [
+ *   { NOMBRE: 'Item1', CATEGORIA: 'Category1', CANTIDAD: '10', 'CANTIDAD MINIMA': '5', FABRICANTE: 'Maker1', MODELO: 'Model1', PROVEEDOR: 'Supplier1', VALOR: '100', 'NUMERO DE FACTURA': '12345', 'FECHA DE COMPRA': '2023-01-01', OBSERVACIONES: 'Note1' },
+ * ];
+ * const transformedData = transformData(jsonData);
+ * console.log(transformedData);
+ * ```
+ */
+  transformData(jsonData: any[]): any[] {
+    console.log('jsonData', jsonData);
+    return jsonData
+      .filter(row => Object.values(row).some(value => value !== ''))
+      .map(row => ({
+        NOMBRE: String(row.NOMBRE || ''),
+        CATEGORIA: String(row.CATEGORIA || ''),
+        CANTIDAD: this.parseNumber(row.CANTIDAD),
+        CANTIDAD_MINIMA: this.parseNumber(row['CANTIDAD MINIMA']),
+        FABRICANTE: String(row.FABRICANTE || ''),
+        MODELO: String(row.MODELO || ''),
+        PROVEEDOR: String(row.PROVEEDOR || ''),
+        VALOR: this.parseNumber(row.VALOR),
+        NUMERO_DE_FACTURA: String(row['NUMERO DE FACTURA'] || ''),
+        FECHA_DE_COMPRA: this.formatDate(row['FECHA DE COMPRA']),
+        OBSERVACIONES: String(row.OBSERVACIONES || '')
+      }))
+      .slice(1); // Remove header row
+  }
+  parseNumber(value: any): number {
+    const parsed = Number(value);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+
+  formatDate(date: string): string {
+    return date ? String(date).trim() : '';
+  }
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['error-snackbar']
+    });
   }
 }

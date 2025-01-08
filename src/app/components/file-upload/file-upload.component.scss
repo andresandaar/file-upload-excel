@@ -34,3 +34,42 @@ mat-icon {
   height: 48px;
   color: #757575;
 }
+
+.file-upload-container {
+  padding: 1rem;
+  
+  .drop-zone {
+    position: relative;
+    min-height: 200px;
+    padding: 2rem;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+    
+    &.dragover {
+      border-color: #2196F3;
+      background-color: rgba(33, 150, 243, 0.05);
+    }
+    
+    &.has-file {
+      border-style: solid;
+      border-color: #4CAF50;
+      background-color: rgba(76, 175, 80, 0.05);
+    }
+  }
+
+  .file-input {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+    
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
