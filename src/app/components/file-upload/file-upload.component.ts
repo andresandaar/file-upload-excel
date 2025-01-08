@@ -142,6 +142,114 @@ export class FileUploadComponent implements OnInit {
    * Procesa el archivo seleccionado
    * @param file Archivo a procesar
    */
+  // private handleFile(file: File): void {
+  //   if (!this.validateFileType(file)) {
+  //     this.showError('Por favor, selecciona un archivo Excel (.xlsx)');
+  //     return;
+  //   }
+
+  //   const reader = new FileReader();
+  //   reader.onload = (e: ProgressEvent<FileReader>) => {
+  //     try {
+  //       const data = new Uint8Array(e.target?.result as ArrayBuffer);
+  //       const workbook = XLSX.read(data, { type: 'array' });
+
+  //       // Buscar la hoja correcta
+  //       let sheetName = workbook.SheetNames[0]; // Primera hoja por defecto
+  //       const targetSheetName = 'Hoja_Cargue';
+
+  //       // Si la primera hoja no tiene los datos correctos, buscar 'Hoja_Cargue'
+  //       if (!this.validateTableData(workbook.Sheets[sheetName])) {
+  //         const hojaCargueIndex = workbook.SheetNames.findIndex(name => name === targetSheetName);
+  //         if (hojaCargueIndex !== -1) {
+  //           sheetName = targetSheetName;
+  //         } else {
+  //           this.showError('No se encontró una hoja válida con el formato requerido');
+  //           if (this.fileInput) {
+  //             this.fileInput.nativeElement.value = '';
+  //           }
+  //           return;
+  //         }
+  //       }
+
+  //       const worksheet = workbook.Sheets[sheetName];
+
+  //       if (!this.validateTableData(worksheet)) {
+  //         this.showError('El formato de la tabla no es válido');
+  //         if (this.fileInput) {
+  //           this.fileInput.nativeElement.value = '';
+  //         }
+  //         return;
+  //       }
+
+  //       // Skip the first 5 rows as they contain header information
+  //       const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+  //         range: 5, // Start from row 6 (0-based index)
+  //         header: this.REQUIRED_HEADERS,
+  //         defval: '', // Default empty value for missing cells
+  //         raw: false // Convert all values to strings
+  //       });
+
+  //       // Remove empty rows and convert numeric strings to numbers
+  //       const filteredData = (jsonData as any[])
+  //         .filter(row => Object.values(row).some(value => value !== ''))
+  //         .map(row => {
+  //           // Convert numeric fields with default values of 0
+  //           const cantidad = row.CANTIDAD ? Number(row.CANTIDAD) : 0;
+  //           const cantidadMinima = row['CANTIDAD MINIMA'] ? Number(row['CANTIDAD MINIMA']) : 0;
+  //           const valor = row.VALOR ? Number(row.VALOR) : 0;
+
+  //           return {
+  //             ...row,
+  //             NOMBRE: String(row.NOMBRE || ''),
+  //             CATEGORIA: String(row.CATEGORIA || ''),
+  //             CANTIDAD: cantidad,
+  //             'CANTIDAD MINIMA': cantidadMinima,
+  //             VALOR: valor,
+  //             FABRICANTE: String(row.FABRICANTE || ''),
+  //             MODELO: String(row.MODELO || ''),
+  //             PROVEEDOR: String(row.PROVEEDOR || ''),
+  //             'NUMERO DE FACTURA': String(row['NUMERO DE FACTURA'] || ''),
+  //             'FECHA DE COMPRA': row['FECHA DE COMPRA'] ? String(row['FECHA DE COMPRA']).trim() : '',
+  //             OBSERVACIONES: String(row.OBSERVACIONES || '')
+  //           };
+  //         });
+
+  //       // Remove the header row
+  //       if (filteredData.length === 0) {
+  //         this.showError('No se encontraron datos válidos en el archivo');
+  //         if (this.fileInput) {
+  //           this.fileInput.nativeElement.value = '';
+  //         }
+  //         return;
+  //       }
+  //       filteredData.shift();
+
+  //       // Emit the processed data
+  //       this.dataLoaded.emit(filteredData);
+
+  //       // Show success message
+  //       this.showSuccess(`Archivo cargado correctamente desde la hoja "${sheetName}"`);
+  //     } catch (error) {
+  //       console.error('Error processing Excel file:', error);
+  //       this.showError('Error al procesar el archivo Excel');
+  //       // Reset file input
+  //       if (this.fileInput) {
+  //         this.fileInput.nativeElement.value = '';
+  //       }
+  //     }
+  //   };
+
+  //   reader.onerror = () => {
+  //     this.showError('Error al leer el archivo');
+  //     // Reset file input
+  //     if (this.fileInput) {
+  //       this.fileInput.nativeElement.value = '';
+  //     }
+  //   };
+
+  //   reader.readAsArrayBuffer(file);
+  // }
   private handleFile(file: File): void {
     if (!this.validateFileType(file)) {
       this.showError('Por favor, selecciona un archivo Excel (.xlsx)');
@@ -153,77 +261,94 @@ export class FileUploadComponent implements OnInit {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
 
-        if (!this.validateTableData(worksheet)) {
-          // Reset file input
-          if (this.fileInput) {
-            this.fileInput.nativeElement.value = '';
-          }
+        const sheetName = this.findValidSheet(workbook);
+        if (!sheetName) {
+          this.showError('No se encontró una hoja válida con el formato requerido');
+          this.resetFileInput();
           return;
         }
 
-        // Skip the first 5 rows as they contain header information
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-          range: 5, // Start from row 6 (0-based index)
-          header: this.REQUIRED_HEADERS,
-          defval: '', // Default empty value for missing cells
-          raw: false // Convert all values to strings
-        });
+        const worksheet = workbook.Sheets[sheetName];
+        if (!this.validateTableData(worksheet)) {
+          this.showError('El formato de la tabla no es válido');
+          this.resetFileInput();
+          return;
+        }
 
-        // Remove empty rows and convert numeric strings to numbers
-        const filteredData = (jsonData as any[])
-          .filter(row => Object.values(row).some(value => value !== ''))
-          .map(row => {
-            // Convert numeric fields with default values of 0
-            const cantidad = row.CANTIDAD ? Number(row.CANTIDAD) : 0;
-            const cantidadMinima = row['CANTIDAD MINIMA'] ? Number(row['CANTIDAD MINIMA']) : 0;
-            const valor = row.VALOR ? Number(row.VALOR) : 0;
+        const jsonData = this.convertSheetToJson(worksheet);
+        const filteredData = this.processJsonData(jsonData);
 
-            return {
-              ...row,
-              NOMBRE: String(row.NOMBRE || ''),
-              CATEGORIA: String(row.CATEGORIA || ''),
-              CANTIDAD: cantidad,
-              'CANTIDAD MINIMA': cantidadMinima,
-              VALOR: valor,
-              FABRICANTE: String(row.FABRICANTE || ''),
-              MODELO: String(row.MODELO || ''),
-              PROVEEDOR: String(row.PROVEEDOR || ''),
-              'NUMERO DE FACTURA': String(row['NUMERO DE FACTURA'] || ''),
-              'FECHA DE COMPRA': row['FECHA DE COMPRA'] ? String(row['FECHA DE COMPRA']).trim() : '',
-              OBSERVACIONES: String(row.OBSERVACIONES || '')
-            };
-          });
-
-        // Remove the header row
-        filteredData.shift();
+        if (filteredData.length === 0) {
+          this.showError('No se encontraron datos válidos en el archivo');
+          this.resetFileInput();
+          return;
+        }
 
         // Emit the processed data
         this.dataLoaded.emit(filteredData);
-        
+
         // Show success message
-        this.showSuccess('Archivo cargado correctamente');
+        this.showSuccess(`Archivo cargado correctamente desde la hoja "${sheetName}"`);
       } catch (error) {
         console.error('Error processing Excel file:', error);
         this.showError('Error al procesar el archivo Excel');
-        // Reset file input
-        if (this.fileInput) {
-          this.fileInput.nativeElement.value = '';
-        }
-      }
-    };
-
-    reader.onerror = () => {
-      this.showError('Error al leer el archivo');
-      // Reset file input
-      if (this.fileInput) {
-        this.fileInput.nativeElement.value = '';
+        this.resetFileInput();
       }
     };
 
     reader.readAsArrayBuffer(file);
+  }
+
+  private findValidSheet(workbook: XLSX.WorkBook): string | null {
+    const targetSheetName = 'Hoja_Cargue';
+    let sheetName = workbook.SheetNames[0]; // Primera hoja por defecto
+
+    if (!this.validateTableData(workbook.Sheets[sheetName])) {
+      const hojaCargueIndex = workbook.SheetNames.findIndex(name => name === targetSheetName);
+      if (hojaCargueIndex !== -1) {
+        sheetName = targetSheetName;
+      } else {
+        return null;
+      }
+    }
+
+    return sheetName;
+  }
+
+  private convertSheetToJson(worksheet: XLSX.WorkSheet): any[] {
+    return XLSX.utils.sheet_to_json(worksheet, {
+      range: 5, // Start from row 6 (0-based index)
+      header: this.REQUIRED_HEADERS,
+      defval: '', // Default empty value for missing cells
+      raw: false // Convert all values to strings
+    });
+  }
+
+  private processJsonData(jsonData: any[]): any[] {
+    return jsonData
+      .filter(row => Object.values(row).some(value => value !== ''))
+      .map(row => ({
+        ...row,
+        NOMBRE: String(row.NOMBRE || ''),
+        CATEGORIA: String(row.CATEGORIA || ''),
+        CANTIDAD: row.CANTIDAD ? Number(row.CANTIDAD) : 0,
+        'CANTIDAD MINIMA': row['CANTIDAD MINIMA'] ? Number(row['CANTIDAD MINIMA']) : 0,
+        VALOR: row.VALOR ? Number(row.VALOR) : 0,
+        FABRICANTE: String(row.FABRICANTE || ''),
+        MODELO: String(row.MODELO || ''),
+        PROVEEDOR: String(row.PROVEEDOR || ''),
+        'NUMERO DE FACTURA': String(row['NUMERO DE FACTURA'] || ''),
+        'FECHA DE COMPRA': row['FECHA DE COMPRA'] ? String(row['FECHA DE COMPRA']).trim() : '',
+        OBSERVACIONES: String(row.OBSERVACIONES || '')
+      }))
+      .slice(1); // Remove the header row
+  }
+
+  private resetFileInput(): void {
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   /**
