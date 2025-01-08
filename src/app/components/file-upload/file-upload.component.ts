@@ -134,8 +134,8 @@ export class FileUploadComponent {
       }
 
       const processedJsonData = this.processorService.processExcelData(worksheet, EXCEL_CONSUMIBLES_CONFIG);
-      if (processedJsonData.length === 0) {
-        this.showError('No se encontraron datos válidos en el archivo');
+      if (processedJsonData.length === 0 || processedJsonData.length === 1) {
+        this.showError('No se encontraron datos en la tabla, verifique el archivo');
         this.resetFileInput();
         return;
       }

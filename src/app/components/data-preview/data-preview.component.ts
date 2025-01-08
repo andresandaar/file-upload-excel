@@ -420,7 +420,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   private validateData(data: DataPreviewRow[]): void {
     if (data.length === 0) {
-      this.showError('No se encontraron datos válidos en el archivo');
+      this.showError('No se encontraron datos en la tabla, verifique el archivo');
       return;
     }
 
@@ -728,7 +728,6 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
  * ```
  */
   transformData(jsonData: any[]): DataPreviewRow[] {
-    console.log('jsonData', jsonData);
     return jsonData
       .filter(row => Object.values(row).some(value => value !== ''))
       .map(row => ({
