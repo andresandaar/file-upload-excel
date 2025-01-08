@@ -1,1 +1,151 @@
-/* You can add global styles to this file, and also import other style files */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.dark-theme {
+  background-color: #303030;
+  color: white;
+}
+
+// Snackbar styles
+.error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+.success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+// Table styles
+.error-row {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+}
+
+.error-cell {
+  color: #f44336 !important;
+  font-weight: 500;
+}
+
+// Material table overrides
+.mat-mdc-table {
+  width: 100%;
+  background: transparent;
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell {
+  padding: 8px 16px !important;
+}
+
+.mat-mdc-row:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --primary: #1175A8;
+  --primary-hover: #186b95;
+  --secondary: #084665;
+  --secondary-hover: #10577a;
+  --base: #FAFAFA;
+  --border-base: #e0dfdf;
+  --base-2: #DBDADA;
+  --text: #000000;
+  --white: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.bg-base{
+  background-color: var(--base) !important;
+  color: var(--text-color) !important;
+}
+
+.bg-secondary{
+  background-color: var(--secondary) !important;
+  color: #FFFFFF !important;
+}
+
+.bg-primary {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary {
+  background-color: var(--primary) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary:hover{
+  background-color: var(--primary-hover) !important; 
+}
+
+.btn-secondary{
+  background-color: var(--secondary) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-secondary:hover{
+  background-color: var(--secondary-hover) !important;
+}
+
+.icon-primary{
+  color: var(--primary) !important;  
+}
+
+.icon-secondary{
+  color: var(--secondary) !important;
+}
+
+.border-white {
+  border: 1px solid var(--white) !important;
+}
+
+.border-white-right {
+  border-right: 1px solid var(--white) !important;
+}
+
+.border-base {
+  border: 1px solid var(--border-base) !important;
+}
+
+.border-base-right {
+  border-right: 1px solid var(--border-base) !important;
+}
+
+.mat-sort-header-arrow{
+  color: var(--white) !important;
+}

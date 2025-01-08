@@ -1,0 +1,89 @@
+.container {
+  padding: 20px;
+}
+.table-container {
+  max-height: 400px;
+  overflow: auto;
+  margin-bottom: 20px;
+}
+table {
+  width: 100%;
+}
+.error-cell {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #d32f2f;
+  font-weight: 500;
+  cursor: pointer;
+}
+td.mat-cell {
+  padding: 8px;
+}
+.edit-field {
+  width: 100%;
+  margin: -8px;
+}
+.error-row {
+  background-color: rgba(255, 0, 0, 0.05);
+}
+.error-row:hover {
+  background-color: rgba(255, 0, 0, 0.08);
+}
+.error-panel {
+  margin-top: 20px;
+}
+.row-error-panel {
+  margin: 8px 0;
+  background-color: rgba(255, 0, 0, 0.02);
+}
+.row-error-panel .mat-expansion-panel-header {
+  padding: 0 16px;
+}
+.error-title {
+  color: #d32f2f;
+  font-weight: 500;
+}
+.row-error-title {
+  color: #d32f2f;
+}
+.error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.row-errors {
+  padding: 8px 0;
+}
+.error-card {
+  border-left: 4px solid #d32f2f;
+  margin: 8px 0;
+}
+.error-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.error-column {
+  color: #666;
+}
+.error-message {
+  color: #d32f2f;
+}
+.error-example {
+  color: #2e7d32;
+  font-style: italic;
+}
+mat-form-field {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.submit-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+td.mat-cell:not(.editing) {
+  cursor: pointer;
+}
+td.mat-cell:not(.editing):hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}

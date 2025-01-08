@@ -1,0 +1,18 @@
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content {
+  padding: 20px;
+}
+
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.dark-theme {
+  background-color: #303030;
+  color: white;
+  min-height: 100vh;
+}
