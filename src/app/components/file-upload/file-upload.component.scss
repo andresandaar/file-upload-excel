@@ -73,3 +73,21 @@ mat-icon {
     }
   }
 }
+.upload-container.no-events {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.disabled-icon {
+  opacity: 0.5;
+}
+
+.disabled-text {
+  color: #666;
+}
+
+.file-name {
+  margin: 10px 0;
+  color: #1976d2;
+  font-weight: 500;
+}
