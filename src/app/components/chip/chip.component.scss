@@ -1,0 +1,35 @@
+.chip {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e0e0e0;
+    border-radius: 16px;
+    padding: 0 12px;
+    height: 32px;
+    font-size: 14px;
+    cursor: default;
+}
+
+.chip-remove {
+    background: #44474e;
+    border-radius: 100%;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 8px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.material-icons {
+    font-size: 18px;
+}
+
+.label {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-clamp: 1;
+    -webkit-line-clamp: 1;
+}

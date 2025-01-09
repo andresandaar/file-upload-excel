@@ -19,5 +19,5 @@ export const EXCEL_CONSUMIBLES_CONFIG: ExcelConfig = {
   ],
   TARGET_SHEET_NAME: 'Hoja_Cargue',
   SKIP_ROWS: 5,
-  SUPPORTED_FILE_TYPES: ['.xlsx'],
+  SUPPORTED_FILE_TYPE: '.xlsx',
 };

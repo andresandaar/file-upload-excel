@@ -56,6 +56,6 @@ export interface SelectOptions {
 }
 
 export interface DisplayedColumn {
-  name: string; // Nombre de la columna (debe coincidir con las propiedades de ExcelRow)
-  label: string; // Etiqueta personalizada para la cabecera
+  dataCellName: string; // Nombre de la columna (debe coincidir con las propiedades de ExcelRow)
+  headerCellName: string; // Etiqueta personalizada para la cabecera
 }

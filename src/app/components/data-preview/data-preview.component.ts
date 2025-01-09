@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, OnChanges, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, OnChanges, AfterViewInit, ElementRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
@@ -18,19 +18,6 @@ import { DataPreviewRow, DisplayedColumn, ErrorsByRow, SelectOptions, Validation
 import { CONSUMIBLE_FORMAT_DATA_BASE, CONSUMIBLE_FORMAT_EXCEL_HEADERS } from '../../config/consumible-format';
 
 
-
-
-
-
-/**
- * Componente para visualizar, validar y editar datos importados desde Excel
- * @description
- * Este componente proporciona una tabla interactiva que permite:
- * - Visualizar datos en formato tabular con ordenamiento y paginación
- * - Editar datos in-place con validación en tiempo real
- * - Mostrar errores de validación agrupados por fila
- * - Formatear datos según su tipo (fechas, moneda, etc.)
- */
 @Component({
   selector: 'app-data-preview',
   standalone: true,
@@ -58,56 +45,47 @@ import { CONSUMIBLE_FORMAT_DATA_BASE, CONSUMIBLE_FORMAT_EXCEL_HEADERS } from '..
   styleUrls: ['./data-preview.component.scss'],
 })
 export class DataPreviewComponent implements OnChanges, AfterViewInit {
-  /**
-   * Entrada de datos desde el componente padre
-   */
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('container') container!: ElementRef;
+
+  dataSource = signal(new MatTableDataSource<DataPreviewRow>([]));
+
   @Input() set data(value: unknown[]) {
     if (value) {
       const processedDataFinal: DataPreviewRow[] = this.transformData(value as any[]);
+      this.dataSource().data = processedDataFinal;
       this.validateData(processedDataFinal);
-      this.dataSource.data = processedDataFinal;
-      this.updateErrorsByRow();
     }
   }
 
-  /**
-   * Evento que emite los datos validados al componente padre
-   */
   @Output() submitData = new EventEmitter<DataPreviewRow[]>();
 
-  /**
-   * Referencias a componentes de Material
-   */
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild('container')
-  container!: ElementRef;
   consumibleFormatDataBase = CONSUMIBLE_FORMAT_DATA_BASE
   consumibleFormatExcelHeaders = CONSUMIBLE_FORMAT_EXCEL_HEADERS
+
   /**
    * Fuente de datos para la tabla
    */
-  dataSource = new MatTableDataSource<DataPreviewRow>([]);
-
-
   displayedColumnsConfig: DisplayedColumn[] = [
-    { name: this.consumibleFormatDataBase.NOMBRE, label: 'Nombre del Producto' },
-    { name: this.consumibleFormatDataBase.CATEGORIA, label: 'Categoría' },
-    { name: this.consumibleFormatDataBase.CANTIDAD, label: 'Cantidad en Stock' },
-    { name: this.consumibleFormatDataBase.CANTIDAD_MINIMA, label: 'Cantidad Mínima' },
-    { name: this.consumibleFormatDataBase.FABRICANTE, label: 'Fabricante' },
-    { name: this.consumibleFormatDataBase.MODELO, label: 'Modelo' },
-    { name: this.consumibleFormatDataBase.PROVEEDOR, label: 'Proveedor' },
-    { name: this.consumibleFormatDataBase.VALOR, label: 'Valor Unitario' },
-    { name: this.consumibleFormatDataBase.NUMERO_DE_FACTURA, label: 'Número de Factura' },
-    { name: this.consumibleFormatDataBase.FECHA_DE_COMPRA, label: 'Fecha de Compra' },
-    { name: this.consumibleFormatDataBase.OBSERVACIONES, label: 'Observaciones' },
+    { dataCellName: this.consumibleFormatDataBase.NOMBRE, headerCellName: this.consumibleFormatExcelHeaders.NOMBRE },
+    { dataCellName: this.consumibleFormatDataBase.CATEGORIA, headerCellName: this.consumibleFormatExcelHeaders.CATEGORIA },
+    { dataCellName: this.consumibleFormatDataBase.CANTIDAD, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD },
+    { dataCellName: this.consumibleFormatDataBase.CANTIDAD_MINIMA, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD_MINIMA },
+    { dataCellName: this.consumibleFormatDataBase.FABRICANTE, headerCellName: this.consumibleFormatExcelHeaders.FABRICANTE },
+    { dataCellName: this.consumibleFormatDataBase.MODELO, headerCellName: this.consumibleFormatExcelHeaders.MODELO },
+    { dataCellName: this.consumibleFormatDataBase.PROVEEDOR, headerCellName: this.consumibleFormatExcelHeaders.PROVEEDOR },
+    { dataCellName: this.consumibleFormatDataBase.VALOR, headerCellName: this.consumibleFormatExcelHeaders.VALOR },
+    { dataCellName: this.consumibleFormatDataBase.NUMERO_DE_FACTURA, headerCellName: this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA },
+    { dataCellName: this.consumibleFormatDataBase.FECHA_DE_COMPRA, headerCellName: this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA },
+    { dataCellName: this.consumibleFormatDataBase.OBSERVACIONES, headerCellName: this.consumibleFormatExcelHeaders.OBSERVACIONES },
   ];
 
 
-  validationErrors: ValidationError[] = [];
-  errorsByRow: ErrorsByRow[] = [];
-  editingCell: { row: number, column: string } | null = null;
+  validationErrors = signal<ValidationError[]>([]);
+  errorsByRow = signal<ErrorsByRow[]>([]);
+  editingCell = signal<{ row: number, column: string } | null>(null);
 
   /**
    * Opciones predefinidas para los selectores
@@ -149,34 +127,25 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
     ]
   };
 
-  /**
-   * Constructor del componente
-   * @param dateAdapter Adaptador de fechas
-   */
+
   constructor(private readonly dateAdapter: DateAdapter<Date>, private readonly snackBar: MatSnackBar) {
     this.dateAdapter.setLocale('es');
   }
 
   /**
-   * Inicializa el componente
-   */
-  // ngOnInit(): void {}
-
-  /**
    * Inicializa la tabla después de que se hayan cargado los datos
    */
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    this.dataSource().paginator = this.paginator;
+    this.dataSource().sort = this.sort;
   }
 
   /**
    * Valida los datos cuando cambian
    */
   ngOnChanges() {
-    if (this.dataSource.data && this.dataSource.data.length > 0) {
-      this.validateData(this.dataSource.data);
-      this.updateErrorsByRow();
+    if (this.dataSource().data && this.dataSource().data.length > 0) {
+      this.validateData(this.dataSource().data);
     }
   }
 
@@ -189,16 +158,16 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   startEditing(event: MouseEvent, row: DataPreviewRow, column: string, rowIndex: number) {
     event.stopPropagation();
-    this.editingCell = { row: rowIndex, column };
+    this.editingCell.set({ row: rowIndex, column });
   }
 
   /**
    * Finaliza la edición de una celda y valida los cambios
    */
   finishEditing() {
-    if (this.editingCell) {
-      this.validateData(this.dataSource.data);
-      this.editingCell = null;
+    if (this.editingCell()) {
+      this.validateData(this.dataSource().data);
+      this.editingCell.set(null);
     }
   }
 
@@ -210,7 +179,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @returns true si la celda está en edición
    */
   isEditing(row: DataPreviewRow, column: string, rowIndex: number): boolean {
-    return this.editingCell?.row === rowIndex && this.editingCell?.column === column;
+    return this.editingCell()?.row === rowIndex && this.editingCell()?.column === column;
   }
 
   /**
@@ -361,12 +330,11 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * Elimina la propiedad _errors antes de enviar
    */
   onSubmit() {
-    if (this.validationErrors.length === 0) {
-      const cleanData = this.dataSource.data.map(row => {
+    if (this.validationErrors().length === 0) {
+      const cleanData = this.dataSource().data.map(row => {
         const { _errors, ...cleanRow } = row;
         return cleanRow;
       });
-      console.log(cleanData)
       this.submitData.emit(cleanData);
     }
   }
@@ -377,9 +345,9 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    */
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+    this.dataSource().filter = filterValue.trim().toLowerCase();
+    if (this.dataSource().paginator) {
+      this.dataSource().paginator?.firstPage();
     }
   }
 
@@ -398,40 +366,24 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param row Fila a verificar
    * @returns true si la fila tiene errores
    */
-  hasErrors(row: DataPreviewRow): boolean {
+  hasErrorsInRow(row: DataPreviewRow): boolean {
     return row._errors ? Object.keys(row._errors).length > 0 : false;
   }
 
-  /**
-   * Verifica si una fila tiene errores de cantidad
-   * @param row Fila a verificar
-   * @returns true si la fila tiene errores de cantidad
-   */
-  hasQuantityError(row: DataPreviewRow): boolean {
-    const cantidad = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD]);
-    const cantidadMinima = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]);
-    return !isNaN(cantidad) && !isNaN(cantidadMinima) &&
-      (cantidad < cantidadMinima || cantidad < 0);
-  }
 
   /**
    * Valida todos los datos de la tabla
    * @param data Datos a validar
    */
   private validateData(data: DataPreviewRow[]): void {
-    if (data.length === 0) {
-      this.showError('No se encontraron datos en la tabla, verifique el archivo');
-      return;
-    }
 
-    this.validationErrors = [];
+    this.validationErrors.set([]);
 
     data.forEach((row, index) => {
       row._errors = {};
 
       Object.entries(row).forEach(([key, value]) => {
         if (key === '_errors') return;
-
         this.validateField(row, index, key, value);
       });
     });
@@ -460,7 +412,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
     }
 
     if (value === null || value === undefined || String(value).trim() === '') {
-      error = `El campo ${key} es requerido`;
+      error = `El campo es requerido`;
       example = this.getExampleForEmptyField(key);
     } else {
       error = this.getErrorForField(key, value, row);
@@ -512,6 +464,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @returns Error para el campo
    */
   private getErrorForField(key: string, value: any, row: DataPreviewRow): string | null {
+    console.log(key);
     switch (key) {
       case this.consumibleFormatDataBase.CATEGORIA:
         return this.validateCategoria(value);
@@ -523,7 +476,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
         return this.validateFechaDeCompra(value);
       case this.consumibleFormatDataBase.CANTIDAD:
       case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
-        return this.validateCantidad(value);
+        return this.validateCantidadYCantidadMinima(key,value, row);
       case this.consumibleFormatDataBase.VALOR:
         return this.validateValor(value);
       case this.consumibleFormatDataBase.NUMERO_DE_FACTURA:
@@ -587,20 +540,34 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param value Valor a validar
    * @returns Error si la cantidad es inválida
    */
-  private validateCantidad(value: any): string | null {
+  private validateCantidadYCantidadMinima(key:string, value: any, row: DataPreviewRow): string | null {
     const numValue = Number(value);
     if (isNaN(numValue) || numValue < 0 || !Number.isInteger(numValue)) {
       return 'Debe ser un número entero positivo';
+    }
+    if (key ===this.consumibleFormatDataBase.CANTIDAD  && this.hasQuantityError(row)) {
+      return 'La cantidad no puede ser menor que la cantidad mínima';
     }
     return null;
   }
 
   /**
+ * Verifica si una fila tiene errores de cantidad
+ * @param row Fila a verificar
+ * @returns true si la fila tiene errores de cantidad
+ */
+  hasQuantityError(row: DataPreviewRow): boolean {
+    const cantidad = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD]);
+    const cantidadMinima = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]);
+    return !isNaN(cantidad) && !isNaN(cantidadMinima) &&
+      (cantidad < cantidadMinima || cantidad < 0);
+  }
+  /**
    * Valida el valor
    * @param value Valor a validar
    * @returns Error si el valor es inválido
    */
-  private validateValor(value: any): string | null {
+  private validateValor(value: any,): string | null {
     const valorNum = Number(value);
     if (isNaN(valorNum) || valorNum <= 0) {
       return 'Debe ser un número mayor que 0';
@@ -628,15 +595,10 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @returns Error si el campo es inválido
    */
   private validateAdditionalRules(key: string, value: any, row: DataPreviewRow): string | null {
-    if (key === this.consumibleFormatDataBase.CANTIDAD && (row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]) {
-      const cantidad = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD]);
-      const cantidadMinima = Number((row as any)[this.consumibleFormatDataBase.CANTIDAD_MINIMA]);
-      if (cantidad < cantidadMinima) {
-        return 'La cantidad no puede ser menor que la cantidad mínima';
-      }
-    }
     return null;
   }
+
+
 
 
   /**
@@ -656,12 +618,12 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param example Ejemplo para el campo
    */
   private addError(row: number, column: string, message: string, example?: string) {
-    this.validationErrors.push({ row, column, message, example });
-    if (this.dataSource.data[row]) {
-      if (!this.dataSource.data[row]._errors) {
-        this.dataSource.data[row]._errors = {};
+    this.validationErrors().push({ row, column, message, example });
+    if (this.dataSource().data[row]) {
+      if (!this.dataSource().data[row]._errors) {
+        this.dataSource().data[row]._errors = {};
       }
-      this.dataSource.data[row]._errors![column] = message;
+      this.dataSource().data[row]._errors![column] = message;
     }
   }
 
@@ -670,25 +632,54 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @returns Número de filas con errores
    */
   getErrorRowCount(): number {
-    return new Set(this.validationErrors.map(error => error.row)).size;
+    return new Set(this.validationErrors().map(error => error.row)).size;
   }
 
   /**
    * Actualiza la lista de errores por fila
    */
+
   updateErrorsByRow() {
     const errorMap = new Map<number, ValidationError[]>();
 
-    this.validationErrors.forEach(error => {
+    this.validationErrors().forEach(error => {
       if (!errorMap.has(error.row)) {
         errorMap.set(error.row, []);
       }
-      errorMap.get(error.row)?.push(error);
+
+      // Create a new error object with transformed column name
+      const transformedError = {
+        ...error,
+        column: this.getExcelHeaderForColumn(error.column)
+      };
+      errorMap.get(error.row)?.push(transformedError);
     });
 
-    this.errorsByRow = Array.from(errorMap.entries())
-      .map(([row, errors]) => ({ row, errors }))
-      .sort((a, b) => a.row - b.row);
+    this.errorsByRow.set(
+      Array.from(errorMap.entries())
+        .map(([row, errors]) => ({ row, errors }))
+        .sort((a, b) => a.row - b.row)
+    );
+  }
+
+  // Helper method to transform column names
+  private getExcelHeaderForColumn(column: string): string {
+    // Create a reverse mapping from database fields to excel headers
+    const reverseMapping: { [key: string]: string } = {
+      [this.consumibleFormatDataBase.NOMBRE]: this.consumibleFormatExcelHeaders.NOMBRE,
+      [this.consumibleFormatDataBase.CATEGORIA]: this.consumibleFormatExcelHeaders.CATEGORIA,
+      [this.consumibleFormatDataBase.CANTIDAD]: this.consumibleFormatExcelHeaders.CANTIDAD,
+      [this.consumibleFormatDataBase.CANTIDAD_MINIMA]: this.consumibleFormatExcelHeaders.CANTIDAD_MINIMA,
+      [this.consumibleFormatDataBase.FABRICANTE]: this.consumibleFormatExcelHeaders.FABRICANTE,
+      [this.consumibleFormatDataBase.MODELO]: this.consumibleFormatExcelHeaders.MODELO,
+      [this.consumibleFormatDataBase.PROVEEDOR]: this.consumibleFormatExcelHeaders.PROVEEDOR,
+      [this.consumibleFormatDataBase.VALOR]: this.consumibleFormatExcelHeaders.VALOR,
+      [this.consumibleFormatDataBase.NUMERO_DE_FACTURA]: this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA,
+      [this.consumibleFormatDataBase.FECHA_DE_COMPRA]: this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA,
+      [this.consumibleFormatDataBase.OBSERVACIONES]: this.consumibleFormatExcelHeaders.OBSERVACIONES
+    };
+
+    return reverseMapping[column] || column;
   }
 
   /**
@@ -701,8 +692,8 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
       return;
     }
     // Si hay una celda en edición, la cancelamos
-    if (this.editingCell) {
-      this.editingCell = null;
+    if (this.editingCell()) {
+      this.editingCell.set(null);
     }
   }
 
@@ -741,7 +732,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
         [this.consumibleFormatDataBase.VALOR]: this.parseNumber(row[this.consumibleFormatExcelHeaders.VALOR]),
         [this.consumibleFormatDataBase.NUMERO_DE_FACTURA]: String(row[this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA] || ''),
         [this.consumibleFormatDataBase.FECHA_DE_COMPRA]: this.formatDate(row[this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA]),
-        [this.consumibleFormatDataBase.OBSERVACIONES]: String(row[this.consumibleFormatExcelHeaders.OBSERVACIONES]|| '')
+        [this.consumibleFormatDataBase.OBSERVACIONES]: String(row[this.consumibleFormatExcelHeaders.OBSERVACIONES] || '')
       } as unknown as DataPreviewRow))
       .slice(1); // Remove header row
   }
@@ -756,15 +747,8 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
   formatDate(date: string): string {
     return date ? String(date).trim() : '';
   }
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 5000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom',
-      panelClass: ['error-snackbar']
-    });
-  }
+
   getDisplayedColumns(): string[] {
-    return this.displayedColumnsConfig.map(column => column.name);
+    return this.displayedColumnsConfig.map(column => column.dataCellName);
   }
 }

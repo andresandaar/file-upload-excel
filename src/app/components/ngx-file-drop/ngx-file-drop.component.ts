@@ -108,6 +108,10 @@ export class NgxFileDropComponent implements OnDestroy {
     return (this.disabled() != null && `${this.disabled()}` !== 'false');
   });
 
+  /**
+     * Entrada de datos desde el componente padre
+     */
+
   private readonly zone = inject(NgZone);
   private readonly renderer = inject(Renderer2);
   constructor() {
@@ -119,6 +123,7 @@ export class NgxFileDropComponent implements OnDestroy {
       console.log(evt)
       this.globalDraggingInProgress.set(false);
     });
+    
   }
 
   public ngOnDestroy(): void {
@@ -307,10 +312,11 @@ export class NgxFileDropComponent implements OnDestroy {
     }
   }
 
+
   /**
    * Clears any added files from the file input element so the same file can subsequently be added multiple times.
    */
-  private resetFileInput(): void {
+  public resetFileInput(): void {
     if (this.fileSelector?.nativeElement) {
       const fileInputEl = this.fileSelector.nativeElement as HTMLInputElement;
       const fileInputContainerEl = fileInputEl.parentElement;

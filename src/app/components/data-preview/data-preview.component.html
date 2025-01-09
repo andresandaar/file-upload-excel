@@ -5,21 +5,22 @@
   </mat-form-field>
 
   <div class="table-container mat-elevation-z8" #container>
-    <table mat-table [dataSource]="dataSource" matSort aria-label="Data preview table">
+    <table mat-table [dataSource]="dataSource()" matSort aria-headerCellName="Data preview table" aria-label="Data preview table">
       <!-- Iterar sobre displayedColumnsConfig para generar las columnas -->
-      <ng-container *ngFor="let column of displayedColumnsConfig" [matColumnDef]="column.name">
+      <ng-container *ngFor="let column of displayedColumnsConfig" [matColumnDef]="column.dataCellName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          {{ column.label }} <!-- Mostrar la etiqueta personalizada -->
+          {{ column.headerCellName }} <!-- Mostrar la etiqueta personalizada -->
         </th>
-        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column.name)"
-          (click)="startEditing($event, row, column.name, i)">
-          <ng-container *ngIf="isEditing(row, column.name, i); else displayMode">
+        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column.dataCellName)"
+          (click)="startEditing($event, row, column.dataCellName, i)">
+          <ng-container *ngIf="isEditing(row, column.dataCellName, i); else displayMode">
             <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-              <ng-container [ngSwitch]="column.name">
+              <ng-container [ngSwitch]="column.dataCellName">
+
                 <!-- Select for CATEGORIA -->
                 <ng-container *ngSwitchCase="consumibleFormatDataBase.CATEGORIA">
-                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.name)">
+                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.dataCellName)">
                     <mat-option *ngFor="let cat of selectOptions.categorias" [value]="cat.id">
                       {{cat.name}}
                     </mat-option>
@@ -28,8 +29,8 @@
     
                 <!-- Select for FABRICANTE -->
                 <ng-container *ngSwitchCase="consumibleFormatDataBase.FABRICANTE">
-                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.name)">
+                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.dataCellName)">
                     <mat-option *ngFor="let fab of selectOptions.fabricantes" [value]="fab.id">
                       {{fab.name}}
                     </mat-option>
@@ -38,8 +39,8 @@
     
                 <!-- Select for PROVEEDOR -->
                 <ng-container *ngSwitchCase="consumibleFormatDataBase.PROVEEDOR">
-                  <mat-select [(ngModel)]="row[column.name]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.name)">
+                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
+                    [placeholder]="getExample(column.dataCellName)">
                     <mat-option *ngFor="let prov of selectOptions.proveedores" [value]="prov.id">
                       {{prov.name}}
                     </mat-option>
@@ -48,43 +49,43 @@
     
                 <!-- Date picker for FECHA_DE_COMPRA -->
                 <ng-container *ngSwitchCase="consumibleFormatDataBase.FECHA_DE_COMPRA">
-                  <input matInput [matDatepicker]="picker" [(ngModel)]="row[column.name]" (dateChange)="finishEditing()"
-                    [placeholder]="getExample(column.name)">
+                  <input matInput [matDatepicker]="picker" [(ngModel)]="row[column.dataCellName]" (dateChange)="finishEditing()"
+                    [placeholder]="getExample(column.dataCellName)">
                   <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                   <mat-datepicker #picker></mat-datepicker>
                 </ng-container>
     
                 <!-- Default input for other fields -->
                 <ng-container *ngSwitchDefault>
-                  <input matInput [(ngModel)]="row[column.name]" (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-                    [placeholder]="getExample(column.name)" [type]="getInputType(column.name)">
+                  <input matInput [(ngModel)]="row[column.dataCellName]" (blur)="finishEditing()" (keyup.enter)="finishEditing()"
+                    [placeholder]="getExample(column.dataCellName)" [type]="getInputType(column.dataCellName)">
                 </ng-container>
               </ng-container>
             </mat-form-field>
           </ng-container>
           <ng-template #displayMode>
-            {{ formatCellValue(row[column.name], column.name) }}
+            {{ formatCellValue(row[column.dataCellName], column.dataCellName) }}
           </ng-template>
         </td>
       </ng-container>
     
       <tr mat-header-row *matHeaderRowDef="getDisplayedColumns(); sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();" [class.error-row]="hasErrors(row)"></tr>
+      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();" [class.error-row]="hasErrorsInRow(row)"></tr>
     </table>
 
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Seleccionar página"></mat-paginator>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-headerCellName="Seleccionar página"></mat-paginator>
   </div>
 
   <!-- Error Summary Section -->
-  <mat-expansion-panel *ngIf="errorsByRow.length > 0" class="error-panel" expanded="true">
+  <mat-expansion-panel *ngIf="errorsByRow().length > 0" class="error-panel" expanded="true">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        <span class="error-title"> Se encontraron errores en {{errorsByRow.length}} filas</span>
+        <span class="error-title"> Se encontraron errores en {{errorsByRow().length}} filas</span>
       </mat-panel-title>
     </mat-expansion-panel-header>
 
     <div class="error-list">
-      <mat-expansion-panel *ngFor="let rowError of errorsByRow" class="row-error-panel">
+      <mat-expansion-panel *ngFor="let rowError of errorsByRow()" class="row-error-panel">
         <mat-expansion-panel-header>
           <mat-panel-title>
             <span class="row-error-title">
@@ -113,11 +114,11 @@
 
   <!-- Submit Button -->
   <div class="submit-container">
-    @if (dataSource.data.length && dataSource.data.length>0 && validationErrors.length <= 0) {
+    @if (dataSource().data.length && dataSource().data.length>0 && validationErrors().length <= 0) {
     <button mat-raised-button color="primary" (click)="onSubmit()">
       {{ 'Subir información' }}
     </button>
-    } @else if(dataSource.data.length && dataSource.data.length>0 && validationErrors.length > 0) {
+    } @else if(dataSource().data.length && dataSource().data.length>0 && validationErrors().length > 0) {
       <p>{{'Corrige los errores para continuar'}}</p>
     }
   </div>

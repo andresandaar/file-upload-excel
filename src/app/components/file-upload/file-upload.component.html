@@ -1,69 +1,17 @@
-<mat-card class="upload-card">
-  <mat-card-header>
-    <mat-card-title>Cargar Archivo Excel</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <div class="upload-container drop-zone" 
-         [class.dragover]="uiState().showDragIndicator"
-         [class.disabled]="uiState().hasActiveFile"
-         (dragover)="onDragOver($event)" 
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)">
-      <input
-        class="file-input"
-        type="file"
-        #fileInput
-        (change)="onFileSelected($event)"
-        accept=".xlsx"
-        style="display: none"
-        [disabled]="uiState().hasActiveFile"
-      />
+<div class="center">
+  <ngx-file-drop dropZoneLabel="Drop files here" (onFileDrop)="onFileSelected($event)"
+    [accept]="excelConsumiblesConfig.SUPPORTED_FILE_TYPE" [multiple]="false">
+    <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector" let-resetFileInput="resetFileInput">
       <div class="upload-content">
-        <mat-icon [class.disabled-icon]="uiState().hasActiveFile" aria-hidden="false" aria-label="Example home icon" fontIcon="cloud_upload"></mat-icon>
-        <p [class.disabled-text]="uiState().hasActiveFile">
-          {{ uiState().hasActiveFile ? 'Borra el archivo actual antes de cargar uno nuevo' : 'Arrastra y suelta un archivo Excel aquí o' }}
-        </p>
-        <button mat-raised-button color="primary" 
-                (click)="fileInput.click()"
-                [disabled]="uiState().hasActiveFile">
+        <mat-icon aria-hidden="false" fontIcon="cloud_upload"></mat-icon>
+        <strong class="upload-text">Arrastra y suelta un archivo Excel aquí</strong>
+        <span>o</span>
+        <button mat-raised-button color="primary" (click)="openFileSelector()" class="upload-button">
           Seleccionar Archivo
         </button>
-        <p class="file-name" *ngIf="currentFile()">
-          {{ currentFile()?.name }}
-        </p>
-        <button 
-          mat-raised-button 
-          color="warn" 
-          (click)="clearFile()"
-          style="margin-left: 10px"
-          *ngIf="uiState().hasActiveFile">
-          Borrar Archivo
-        </button>
+        <app-chip *ngIf="currentFile() && currentFileName()" [label]="currentFileName()"
+          (onRemove)="clearFile()"></app-chip>
       </div>
-    </div>
-  </mat-card-content>
-</mat-card>
-
-<div class="center">
-  <ngx-file-drop dropZoneLabel="Drop files here" (onFileDrop)="dropped($event)" 
-  (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)" [accept]="'.xlsx'">
-      <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-        Optional custom content that replaces the the entire default content.
-        <button type="button" (click)="openFileSelector()">Browse Files</button>
-      </ng-template>
+    </ng-template>
   </ngx-file-drop>
-  <!-- <div class="upload-table">
-      <table class="table">
-          <thead>
-              <tr>
-                  <th>Name</th>
-              </tr>
-          </thead>
-          <tbody class="upload-name-style">
-              <tr *ngFor="let item of files; let i=index">
-                  <td><strong>{{ item.relativePath }}</strong></td>
-              </tr>
-          </tbody>
-      </table>
-  </div> -->
 </div>
