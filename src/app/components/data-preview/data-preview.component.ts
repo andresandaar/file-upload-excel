@@ -457,44 +457,46 @@ export class DataPreviewComponent implements AfterViewInit {
   }
 
   /**
- * Valida los datos del formulario y selecciona el primer error por cada celda (control)
+   * Valida los datos del formulario y gestiona los errores de validación
+   * Implementa una estrategia de priorización de errores y agrupación por filas
  */
   private validateData(): void {
+    // Reiniciar el estado de los errores
     this.errorsByRow.set([]);
     this.validationErrors.set([]);
+    
     const formArray = this.formArray();
     const errorsByRow = new Map<number, ValidationError[]>();
     const validationErrors = new Map<number, ValidationError[]>();
 
     formArray.controls.forEach((formGroup: AbstractControl, rowIndex: number) => {
-      if (formGroup instanceof FormGroup) {
-        Object.keys(formGroup.controls).forEach(controlName => {
-          const control = formGroup.get(controlName);
-          if (control?.errors) {
-            const firstErrorMessage = this.formService.getErrorMessage(control);
-            // Si no existen errores en esta fila, inicializarlos
-            if (!errorsByRow.has(rowIndex)) {
-              errorsByRow.set(rowIndex, []);
-            }
-            if (!validationErrors.has(rowIndex)) {
-              validationErrors.set(rowIndex, []);
-            }
-
-            // Crear el error para la celda
-            const error: ValidationError = {
-              row: rowIndex,
-              column: this.getExcelHeaderForColumn(controlName),
-              message: firstErrorMessage,
-            };
-
-            errorsByRow.get(rowIndex)?.push(error);
-            validationErrors.get(rowIndex)?.push({
-              ...error,
-              column: controlName, // Nombre técnico del control
-            });
+      if (!(formGroup instanceof FormGroup)) return;
+      Object.keys(formGroup.controls).forEach(controlName => {
+        const control = formGroup.get(controlName);
+        if (control?.errors) {
+          const firstErrorMessage = this.formService.getErrorMessage(control);
+          // Si no existen errores en esta fila, inicializarlos
+          if (!errorsByRow.has(rowIndex)) {
+            errorsByRow.set(rowIndex, []);
           }
-        });
-      }
+          if (!validationErrors.has(rowIndex)) {
+            validationErrors.set(rowIndex, []);
+          }
+
+          // Crear el error para la celda
+          const error: ValidationError = {
+            row: rowIndex,
+            column: this.getExcelHeaderForColumn(controlName),
+            message: firstErrorMessage,
+          };
+
+          errorsByRow.get(rowIndex)?.push(error);
+          validationErrors.get(rowIndex)?.push({
+            ...error,
+            column: controlName, // Nombre técnico del control
+          });
+        }
+      });
     });
 
     // Convertir el Map a un array de objetos con el formato deseado
