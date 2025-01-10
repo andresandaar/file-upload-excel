@@ -1,0 +1,8 @@
+<mat-form-field appearance="outline" class="full-width">
+  <mat-label>{{ label }}</mat-label>
+  <input matInput [formControl]="control" type="text" onlyNumber [maxlength]="maxCharacters"
+    [minlength]="minCharacters">
+  <mat-error *ngIf="formService.invalid(control)">
+    {{ formService.getErrorMessage(control) }}
+  </mat-error>
+</mat-form-field>

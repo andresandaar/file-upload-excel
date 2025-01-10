@@ -1,0 +1,9 @@
+<mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ label }}</mat-label>
+    <input matInput [matDatepicker]="picker" [formControl]="control" [min]="fechaMinima ? fechaMinima : null">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <mat-error *ngIf="formService.invalid(control)">
+        {{ formService.getErrorMessage(control) }}
+    </mat-error>
+</mat-form-field>

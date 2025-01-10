@@ -1,0 +1,18 @@
+<div class="file-input-container">
+    <label for="imageInput">{{ label }}</label>
+    <input 
+      type="file" 
+      id="imageInput" 
+      (change)="onFileSelected($event)" 
+      [accept]="accept" 
+    />
+    <ng-container *ngIf="currentImageName">
+      <a href="javascript:void(0);" 
+         (click)="openImage()" 
+         class="image-link" 
+         [title]="imageTitle">
+        <mat-icon>image</mat-icon>
+        <span>Ver Imagen</span>
+      </a>
+    </ng-container>
+  </div>

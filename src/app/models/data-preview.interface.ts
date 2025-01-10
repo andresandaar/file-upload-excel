@@ -8,11 +8,10 @@ export interface DataPreviewRow {
   [CONSUMIBLE_FORMAT_DATA_BASE.FABRICANTE]: string;
   [CONSUMIBLE_FORMAT_DATA_BASE.MODELO]: string;
   [CONSUMIBLE_FORMAT_DATA_BASE.PROVEEDOR]: string;
-  [CONSUMIBLE_FORMAT_DATA_BASE.VALOR]: number;
+  [CONSUMIBLE_FORMAT_DATA_BASE.COSTO]: number;
   [CONSUMIBLE_FORMAT_DATA_BASE.NUMERO_DE_FACTURA]: string;
   [CONSUMIBLE_FORMAT_DATA_BASE.FECHA_DE_COMPRA]: string;
   [CONSUMIBLE_FORMAT_DATA_BASE.OBSERVACIONES]: string;
-  _errors?: { [key: string]: string };
 }
 
 
@@ -23,8 +22,7 @@ export interface DataPreviewRow {
 export interface ValidationError {
   row: number;
   column: string;
-  message: string;
-  example?: string;
+  message: string | null;
 }
 
 /** 

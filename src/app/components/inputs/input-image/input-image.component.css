@@ -1,0 +1,22 @@
+.file-input-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .image-link:hover {
+    text-decoration: underline;
+  }
+
+  .image-link {
+    display: inline-flex;
+    align-items: center;
+    color: #1976d2;
+    text-decoration: none;
+    margin-top: 8px;
+    transition: color 0.3s ease;
+  }
+  
+  .image-link mat-icon {
+    font-size: 20px;
+    margin-right: 4px;
+  }

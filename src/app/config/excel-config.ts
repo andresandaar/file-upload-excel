@@ -12,7 +12,7 @@ export const EXCEL_CONSUMIBLES_CONFIG: ExcelConfig = {
     consumibleFormatExcelHeaders.FABRICANTE,
     consumibleFormatExcelHeaders.MODELO,
     consumibleFormatExcelHeaders.PROVEEDOR,
-    consumibleFormatExcelHeaders.VALOR,
+    consumibleFormatExcelHeaders.COSTO,
     consumibleFormatExcelHeaders.NUMERO_DE_FACTURA,
     consumibleFormatExcelHeaders.FECHA_DE_COMPRA,
     consumibleFormatExcelHeaders.OBSERVACIONES,

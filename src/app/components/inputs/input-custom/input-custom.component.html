@@ -1,0 +1,45 @@
+<mat-form-field [appearance]="appearance" class="full-width" [hidden]="isEditMode" (click)="$event.stopPropagation()">
+  <mat-label *ngIf="label">{{ label }}</mat-label>
+
+  <!-- Input estándar -->
+  <input *ngIf="inputType === 'input'" #inputElement matInput [type]="type" [formControl]="control"
+    [placeholder]="placeholder" [attr.maxlength]="maxCharacters" [attr.minlength]="minCharacters" [attr.min]="min"
+    [attr.max]="max" (blur)="onTouched()" (keyup.enter)="onEnter()">
+
+
+  <!-- Input con Autocomplete -->
+  <input *ngIf="inputType === 'autocomplete'" type="text" matInput #autoCompleteInput [formControl]="control"
+    [placeholder]="placeholder" [matAutocomplete]="auto" (blur)="onTouched()">
+  <mat-icon matSuffix *ngIf="inputType === 'autocomplete'">search</mat-icon>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="getDisplayText.bind(this)"
+    (optionSelected)="onOptionSelected($event)">
+    <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+      {{ getDisplayText(option) }}
+    </mat-option>
+  </mat-autocomplete>
+
+
+  <!-- Textarea -->
+  <textarea *ngIf="inputType === 'textarea'" #textareaElement matInput [formControl]="control"
+    [maxlength]="maxCharacters" [minlength]="minCharacters" [rows]="rows" [placeholder]="placeholder"
+    (blur)="onTouched()">
+  </textarea>
+
+  <!-- Select -->
+  <mat-select *ngIf="inputType === 'select'" [multiple]="multiple" [formControl]="control" (blur)="onTouched()"
+    (selectionChange)="onSelectionChange($event)">
+    <mat-option *ngFor="let option of options" [value]="option[valueProperty]">
+      {{ getDisplayText(option) }}
+    </mat-option>
+  </mat-select>
+
+  <!-- Contador de caracteres -->
+  <mat-hint *ngIf="showCharCount && (inputType === 'input' || inputType === 'textarea')" align="end">
+    {{control.value?.length || 0}}/{{maxCharacters}}
+  </mat-hint>
+
+  <!-- Mensajes de error -->
+  <mat-error *ngIf="formService.invalid(control)">
+    {{ formService.getErrorMessage(control) }}
+  </mat-error>
+</mat-form-field>
