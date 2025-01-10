@@ -457,58 +457,6 @@ export class DataPreviewComponent implements AfterViewInit {
   }
 
   /**
-   * Valida los datos del formulario
-   */
-  // private validateData(): void {
-  //   this.errorsByRow.set([]);
-  //   this.validationErrors.set([]);
-  //   const formArray = this.formArray();
-  //   const errorsByRow = new Map<number, ValidationError[]>();
-  //   const validationErrors = new Map<number, ValidationError[]>();
-  //   console.log(formArray);
-
-  //   formArray.controls.forEach((formGroup: AbstractControl, rowIndex: number) => {
-  //     if (formGroup instanceof FormGroup) {
-  //       Object.keys(formGroup.controls).forEach(controlName => {
-  //         const control = formGroup.get(controlName);
-  //         if (control?.errors) {
-  //           Object.keys(control.errors).forEach(errorType => {
-  //             if (!errorsByRow.has(rowIndex) && !validationErrors.has(rowIndex)) {
-  //               errorsByRow.set(rowIndex, []);
-  //               validationErrors.set(rowIndex, []);
-  //             }
-
-  //             errorsByRow.get(rowIndex)?.push({
-  //               row: rowIndex,
-  //               column: this.getExcelHeaderForColumn(controlName),
-  //               message: this.formService.getErrorMessage(control),
-  //             });
-
-  //             validationErrors.get(rowIndex)?.push({
-  //               row: rowIndex,
-  //               column: controlName,
-  //               message: this.formService.getErrorMessage(control),
-  //             })
-
-  //           });
-  //         }
-  //       });
-  //     }
-  //   });
-
-  //   // Convertir el Map a un array de objetos con el formato deseado
-  //   const groupedErrors = Array.from(errorsByRow.entries())
-  //     .map(([row, errors]) => ({ row, errors }))
-  //     .sort((a, b) => a.row - b.row);
-
-  //   const groupedValidationErrors = Array.from(validationErrors.entries())
-  //     .map(([row, errors]) => ({ row, errors }))
-  //     .sort((a, b) => a.row - b.row);
-
-  //   this.errorsByRow.set(groupedErrors);
-  //   this.validationErrors.set(groupedValidationErrors);
-  // }
-  /**
  * Valida los datos del formulario y selecciona el primer error por cada celda (control)
  */
   private validateData(): void {
