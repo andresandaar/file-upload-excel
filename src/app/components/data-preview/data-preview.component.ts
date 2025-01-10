@@ -68,19 +68,20 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
   /**
    * Fuente de datos para la tabla
    */
-  displayedColumnsConfig: DisplayedColumn[] = [
-    { dataCellName: this.consumibleFormatDataBase.NOMBRE, headerCellName: this.consumibleFormatExcelHeaders.NOMBRE },
-    { dataCellName: this.consumibleFormatDataBase.CATEGORIA, headerCellName: this.consumibleFormatExcelHeaders.CATEGORIA },
-    { dataCellName: this.consumibleFormatDataBase.CANTIDAD, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD },
-    { dataCellName: this.consumibleFormatDataBase.CANTIDAD_MINIMA, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD_MINIMA },
-    { dataCellName: this.consumibleFormatDataBase.FABRICANTE, headerCellName: this.consumibleFormatExcelHeaders.FABRICANTE },
-    { dataCellName: this.consumibleFormatDataBase.MODELO, headerCellName: this.consumibleFormatExcelHeaders.MODELO },
-    { dataCellName: this.consumibleFormatDataBase.PROVEEDOR, headerCellName: this.consumibleFormatExcelHeaders.PROVEEDOR },
-    { dataCellName: this.consumibleFormatDataBase.VALOR, headerCellName: this.consumibleFormatExcelHeaders.VALOR },
-    { dataCellName: this.consumibleFormatDataBase.NUMERO_DE_FACTURA, headerCellName: this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA },
-    { dataCellName: this.consumibleFormatDataBase.FECHA_DE_COMPRA, headerCellName: this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA },
-    { dataCellName: this.consumibleFormatDataBase.OBSERVACIONES, headerCellName: this.consumibleFormatExcelHeaders.OBSERVACIONES },
+  displayedColumns: string[] = [
+    this.consumibleFormatDataBase.NOMBRE,
+    this.consumibleFormatDataBase.CATEGORIA,
+    this.consumibleFormatDataBase.CANTIDAD,
+    this.consumibleFormatDataBase.CANTIDAD_MINIMA,
+    this.consumibleFormatDataBase.FABRICANTE,
+    this.consumibleFormatDataBase.MODELO,
+    this.consumibleFormatDataBase.PROVEEDOR,
+    this.consumibleFormatDataBase.VALOR,
+    this.consumibleFormatDataBase.NUMERO_DE_FACTURA,
+    this.consumibleFormatDataBase.FECHA_DE_COMPRA,
+    this.consumibleFormatDataBase.OBSERVACIONES
   ];
+
 
 
   validationErrors = signal<ValidationError[]>([]);
@@ -476,7 +477,7 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
         return this.validateFechaDeCompra(value);
       case this.consumibleFormatDataBase.CANTIDAD:
       case this.consumibleFormatDataBase.CANTIDAD_MINIMA:
-        return this.validateCantidadYCantidadMinima(key,value, row);
+        return this.validateCantidadYCantidadMinima(key, value, row);
       case this.consumibleFormatDataBase.VALOR:
         return this.validateValor(value);
       case this.consumibleFormatDataBase.NUMERO_DE_FACTURA:
@@ -540,12 +541,12 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
    * @param value Valor a validar
    * @returns Error si la cantidad es inválida
    */
-  private validateCantidadYCantidadMinima(key:string, value: any, row: DataPreviewRow): string | null {
+  private validateCantidadYCantidadMinima(key: string, value: any, row: DataPreviewRow): string | null {
     const numValue = Number(value);
     if (isNaN(numValue) || numValue < 0 || !Number.isInteger(numValue)) {
       return 'Debe ser un número entero positivo';
     }
-    if (key ===this.consumibleFormatDataBase.CANTIDAD  && this.hasQuantityError(row)) {
+    if (key === this.consumibleFormatDataBase.CANTIDAD && this.hasQuantityError(row)) {
       return 'La cantidad no puede ser menor que la cantidad mínima';
     }
     return null;
@@ -748,7 +749,4 @@ export class DataPreviewComponent implements OnChanges, AfterViewInit {
     return date ? String(date).trim() : '';
   }
 
-  getDisplayedColumns(): string[] {
-    return this.displayedColumnsConfig.map(column => column.dataCellName);
-  }
 }

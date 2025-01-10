@@ -1,78 +1,227 @@
 <div class="container">
-  <mat-form-field>
+  <!-- <mat-form-field>
     <mat-label>Filtrar</mat-label>
     <input matInput (keyup)="applyFilter($event)" placeholder="Ej. Tornillo" #input>
-  </mat-form-field>
-
+  </mat-form-field> -->
   <div class="table-container mat-elevation-z8" #container>
-    <table mat-table [dataSource]="dataSource()" matSort aria-headerCellName="Data preview table" aria-label="Data preview table">
-      <!-- Iterar sobre displayedColumnsConfig para generar las columnas -->
-      <ng-container *ngFor="let column of displayedColumnsConfig" [matColumnDef]="column.dataCellName">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-          {{ column.headerCellName }} <!-- Mostrar la etiqueta personalizada -->
-        </th>
-        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column.dataCellName)"
-          (click)="startEditing($event, row, column.dataCellName, i)">
-          <ng-container *ngIf="isEditing(row, column.dataCellName, i); else displayMode">
-            <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-              <ng-container [ngSwitch]="column.dataCellName">
+    <table mat-table [dataSource]="dataSource()" matSort aria-headerCellName="Data preview table"
+      aria-label="Data preview table">
 
-                <!-- Select for CATEGORIA -->
-                <ng-container *ngSwitchCase="consumibleFormatDataBase.CATEGORIA">
-                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.dataCellName)">
-                    <mat-option *ngFor="let cat of selectOptions.categorias" [value]="cat.id">
-                      {{cat.name}}
-                    </mat-option>
-                  </mat-select>
-                </ng-container>
-    
-                <!-- Select for FABRICANTE -->
-                <ng-container *ngSwitchCase="consumibleFormatDataBase.FABRICANTE">
-                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.dataCellName)">
-                    <mat-option *ngFor="let fab of selectOptions.fabricantes" [value]="fab.id">
-                      {{fab.name}}
-                    </mat-option>
-                  </mat-select>
-                </ng-container>
-    
-                <!-- Select for PROVEEDOR -->
-                <ng-container *ngSwitchCase="consumibleFormatDataBase.PROVEEDOR">
-                  <mat-select [(ngModel)]="row[column.dataCellName]" (selectionChange)="finishEditing()"
-                    [placeholder]="getExample(column.dataCellName)">
-                    <mat-option *ngFor="let prov of selectOptions.proveedores" [value]="prov.id">
-                      {{prov.name}}
-                    </mat-option>
-                  </mat-select>
-                </ng-container>
-    
-                <!-- Date picker for FECHA_DE_COMPRA -->
-                <ng-container *ngSwitchCase="consumibleFormatDataBase.FECHA_DE_COMPRA">
-                  <input matInput [matDatepicker]="picker" [(ngModel)]="row[column.dataCellName]" (dateChange)="finishEditing()"
-                    [placeholder]="getExample(column.dataCellName)">
-                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-datepicker #picker></mat-datepicker>
-                </ng-container>
-    
-                <!-- Default input for other fields -->
-                <ng-container *ngSwitchDefault>
-                  <input matInput [(ngModel)]="row[column.dataCellName]" (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-                    [placeholder]="getExample(column.dataCellName)" [type]="getInputType(column.dataCellName)">
-                </ng-container>
-              </ng-container>
-            </mat-form-field>
-          </ng-container>
-          <ng-template #displayMode>
-            {{ formatCellValue(row[column.dataCellName], column.dataCellName) }}
-          </ng-template>
+      <!-- Columna Nombre -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.NOMBRE">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.NOMBRE}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NOMBRE)"
+          [class.editable-cell]="isEditing(row, consumibleFormatDataBase.NOMBRE, i)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.NOMBRE, i)">
+          @if (isEditing(row, consumibleFormatDataBase.NOMBRE, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()" floatLabel="always">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.NOMBRE]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.NOMBRE)"
+              [type]="getInputType(consumibleFormatDataBase.NOMBRE)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.NOMBRE], consumibleFormatDataBase.NOMBRE) }}
+          }
         </td>
       </ng-container>
-    
-      <tr mat-header-row *matHeaderRowDef="getDisplayedColumns(); sticky: true"></tr>
-      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();" [class.error-row]="hasErrorsInRow(row)"></tr>
-    </table>
 
+      <!-- Columna Categoría -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.CATEGORIA">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CATEGORIA}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CATEGORIA)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.CATEGORIA, i)">
+          @if (isEditing(row, consumibleFormatDataBase.CATEGORIA, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <mat-select [(ngModel)]="row[consumibleFormatDataBase.CATEGORIA]" (selectionChange)="finishEditing()"
+              [placeholder]="getExample(consumibleFormatDataBase.CATEGORIA)">
+              <mat-option *ngFor="let cat of selectOptions.categorias" [value]="cat.id">
+                {{cat.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.CATEGORIA ], consumibleFormatDataBase.CATEGORIA) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Cantidad -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.CANTIDAD">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD, i)">
+          @if (isEditing(row, consumibleFormatDataBase.CANTIDAD, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.CANTIDAD]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.CANTIDAD)"
+              [type]="getInputType(consumibleFormatDataBase.CANTIDAD)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD], consumibleFormatDataBase.CANTIDAD) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Cantidad Mínima -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.CANTIDAD_MINIMA">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD_MINIMA}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD_MINIMA)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD_MINIMA, i)">
+          @if (isEditing(row, consumibleFormatDataBase.CANTIDAD_MINIMA, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.CANTIDAD_MINIMA]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.CANTIDAD_MINIMA)"
+              [type]="getInputType(consumibleFormatDataBase.CANTIDAD_MINIMA)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD_MINIMA], consumibleFormatDataBase.CANTIDAD_MINIMA) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Fabricante -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.FABRICANTE">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FABRICANTE}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FABRICANTE)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.FABRICANTE, i)">
+          @if (isEditing(row, consumibleFormatDataBase.FABRICANTE, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <mat-select [(ngModel)]="row[consumibleFormatDataBase.FABRICANTE]" (selectionChange)="finishEditing()"
+              [placeholder]="getExample(consumibleFormatDataBase.FABRICANTE)">
+              <mat-option *ngFor="let fab of selectOptions.fabricantes" [value]="fab.id">
+                {{fab.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.FABRICANTE], consumibleFormatDataBase.FABRICANTE) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Modelo -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.MODELO">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.MODELO}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.MODELO)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.MODELO, i)">
+          @if (isEditing(row, consumibleFormatDataBase.MODELO, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.MODELO]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.MODELO)"
+              [type]="getInputType(consumibleFormatDataBase.MODELO)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.MODELO], consumibleFormatDataBase.MODELO) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Proveedor -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.PROVEEDOR">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.PROVEEDOR}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.PROVEEDOR)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.PROVEEDOR, i)">
+          @if (isEditing(row, consumibleFormatDataBase.PROVEEDOR, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <mat-select [(ngModel)]="row[consumibleFormatDataBase.PROVEEDOR]" (selectionChange)="finishEditing()"
+              [placeholder]="getExample(consumibleFormatDataBase.PROVEEDOR)">
+              <mat-option *ngFor="let prov of selectOptions.proveedores" [value]="prov.id">
+                {{prov.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.PROVEEDOR], consumibleFormatDataBase.PROVEEDOR) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Valor -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.VALOR">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.VALOR}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.VALOR)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.VALOR, i)">
+          @if (isEditing(row, consumibleFormatDataBase.VALOR, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.VALOR]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.VALOR)"
+              [type]="getInputType(consumibleFormatDataBase.VALOR)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.VALOR], consumibleFormatDataBase.VALOR) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Número de Factura -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.NUMERO_DE_FACTURA">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.NUMERO_DE_FACTURA}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NUMERO_DE_FACTURA)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)">
+          @if (isEditing(row, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.NUMERO_DE_FACTURA]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.NUMERO_DE_FACTURA)"
+              [type]="getInputType(consumibleFormatDataBase.NUMERO_DE_FACTURA)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.NUMERO_DE_FACTURA],
+          consumibleFormatDataBase.NUMERO_DE_FACTURA) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Fecha de Compra -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.FECHA_DE_COMPRA">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FECHA_DE_COMPRA}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FECHA_DE_COMPRA)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.FECHA_DE_COMPRA, i)">
+          @if (isEditing(row, consumibleFormatDataBase.FECHA_DE_COMPRA, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [matDatepicker]="picker" [(ngModel)]="row[consumibleFormatDataBase.FECHA_DE_COMPRA]"
+              (dateChange)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.FECHA_DE_COMPRA)">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.FECHA_DE_COMPRA], consumibleFormatDataBase.FECHA_DE_COMPRA)}}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Columna Observaciones -->
+      <ng-container [matColumnDef]="consumibleFormatDataBase.OBSERVACIONES">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.OBSERVACIONES}}</th>
+        <td mat-cell *matCellDef="let row; let i = index"
+          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.OBSERVACIONES)"
+          (click)="startEditing($event, row, consumibleFormatDataBase.OBSERVACIONES, i)">
+          @if (isEditing(row, consumibleFormatDataBase.OBSERVACIONES, i)) {
+          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
+            <input matInput [(ngModel)]="row[consumibleFormatDataBase.OBSERVACIONES]" (blur)="finishEditing()"
+              (keyup.enter)="finishEditing()" [placeholder]="getExample(consumibleFormatDataBase.OBSERVACIONES)"
+              [type]="getInputType(consumibleFormatDataBase.OBSERVACIONES)">
+          </mat-form-field>
+          }@else {
+          {{ formatCellValue(row[consumibleFormatDataBase.OBSERVACIONES], consumibleFormatDataBase.OBSERVACIONES) }}
+          }
+        </td>
+      </ng-container>
+
+      <!-- Filas de Cabecera y Datos -->
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="hasErrorsInRow(row)"></tr>
+    </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-headerCellName="Seleccionar página"></mat-paginator>
   </div>
 
@@ -114,12 +263,12 @@
 
   <!-- Submit Button -->
   <div class="submit-container">
-    @if (dataSource().data.length && dataSource().data.length>0 && validationErrors().length <= 0) {
-    <button mat-raised-button color="primary" (click)="onSubmit()">
+    @if (dataSource().data.length && dataSource().data.length>0 && validationErrors().length <= 0) { <button
+      mat-raised-button color="primary" (click)="onSubmit()">
       {{ 'Subir información' }}
-    </button>
-    } @else if(dataSource().data.length && dataSource().data.length>0 && validationErrors().length > 0) {
+      </button>
+      } @else if(dataSource().data.length && dataSource().data.length>0 && validationErrors().length > 0) {
       <p>{{'Corrige los errores para continuar'}}</p>
-    }
+      }
   </div>
 </div>
