@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Optional, Output, ViewChild } from '@angular/core';
 import { AbstractControl, ControlContainer, ControlValueAccessor, FormControl, FormControlDirective, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -31,6 +31,10 @@ import { FormService } from '../../../services/form-service.service';
     .full-width {
       width: 100%;
     }
+    .field-no-error {
+  width: 100%;
+  margin: 0px;
+}
     `,
   ],
 })
@@ -39,11 +43,15 @@ export class InputDateComponent implements ControlValueAccessor, OnInit {
   formControlDirective!: FormControlDirective;
   @Input() formControl!: FormControl;
   @Input() formControlName!: string;
-  @Input() label!: string;
+  @Input() label: string | null = null;
   @Input() invalidForm: boolean = false;
   @Input() messageError: string = '';
   @Input() fechaMinimaControl!: AbstractControl<any, any> | null;
+  @Input() showMessageError: boolean = true;
 
+  @Output() touched = new EventEmitter<void>();
+  @Output() dateChange = new EventEmitter<void>();
+  @Output() enter = new EventEmitter<void>();
   fechaMinima!: Date | null;
 
   constructor(@Optional() private readonly _controlContainer: ControlContainer, public formService: FormService, private readonly cdr: ChangeDetectorRef) {
@@ -89,4 +97,17 @@ export class InputDateComponent implements ControlValueAccessor, OnInit {
     }
   }
 
+  // Event handlers
+  onTouched(): void {
+    this.touched.emit();
+  }
+
+
+  onEnter(): void {
+    this.enter.emit();
+  }
+
+  onDateChange(event: any): void {
+    this.dateChange.emit(event);
+  }
 }

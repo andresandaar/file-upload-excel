@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, Optional, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Optional, Output, ViewChild } from '@angular/core';
 import { ControlContainer, ControlValueAccessor, FormControl, FormControlDirective, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { OnlyNumberDirective } from '../../../directives/number/only-number.directive';
@@ -24,6 +24,10 @@ import { FormService } from '../../../services/form-service.service';
   .full-width{
     width: 100%;
 }
+.field-no-error {
+  width: 100%;
+  margin: 0px;
+}
     `,
   ],
 
@@ -33,13 +37,15 @@ export class InputPhoneComponent implements ControlValueAccessor {
   formControlDirective!: FormControlDirective;
   @Input() formControl!: FormControl;
   @Input() formControlName!: string;
-  @Input() label!: string;
+  @Input() label: string | null = null;
   @Input() maxCharacters: string | null = null;
   @Input() minCharacters: string | null = null;
   @Input() suffix?: string;
   @Input() type: string = 'text';
-  @Input() invalidForm: boolean = false;
-  @Input() messageError: string = '';
+  @Input() showMessageError: boolean = true;
+
+  @Output() touched = new EventEmitter<void>();
+  @Output() enter = new EventEmitter<void>();
 
   get control(): FormControl<any> {
     return this.formControl ||
@@ -67,4 +73,13 @@ export class InputPhoneComponent implements ControlValueAccessor {
     this.formControlDirective.valueAccessor?.setDisabledState?.(isDisabled);
   }
 
+  // Event handlers
+  onTouched(): void {
+    this.touched.emit();
+  }
+
+
+  onEnter(): void {
+    this.enter.emit();
+  }
 }

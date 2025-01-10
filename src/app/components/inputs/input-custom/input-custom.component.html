@@ -1,4 +1,4 @@
-<mat-form-field [appearance]="appearance" class="full-width" [hidden]="isEditMode" (click)="$event.stopPropagation()">
+<mat-form-field [appearance]="appearance" [class.field-no-error]="!showMessageError" class="full-width" [hidden]="isEditMode" (click)="$event.stopPropagation()">
   <mat-label *ngIf="label">{{ label }}</mat-label>
 
   <!-- Input estándar -->
@@ -9,7 +9,7 @@
 
   <!-- Input con Autocomplete -->
   <input *ngIf="inputType === 'autocomplete'" type="text" matInput #autoCompleteInput [formControl]="control"
-    [placeholder]="placeholder" [matAutocomplete]="auto" (blur)="onTouched()">
+    [placeholder]="placeholder" [matAutocomplete]="auto" (blur)="onTouched()" (keyup.enter)="onEnter()">
   <mat-icon matSuffix *ngIf="inputType === 'autocomplete'">search</mat-icon>
   <mat-autocomplete #auto="matAutocomplete" [displayWith]="getDisplayText.bind(this)"
     (optionSelected)="onOptionSelected($event)">
@@ -22,12 +22,12 @@
   <!-- Textarea -->
   <textarea *ngIf="inputType === 'textarea'" #textareaElement matInput [formControl]="control"
     [maxlength]="maxCharacters" [minlength]="minCharacters" [rows]="rows" [placeholder]="placeholder"
-    (blur)="onTouched()">
+    (blur)="onTouched()" (keyup.enter)="onEnter()">
   </textarea>
 
   <!-- Select -->
   <mat-select *ngIf="inputType === 'select'" [multiple]="multiple" [formControl]="control" (blur)="onTouched()"
-    (selectionChange)="onSelectionChange($event)">
+    (selectionChange)="onSelectionChange($event)" (keyup.enter)="onEnter()">
     <mat-option *ngFor="let option of options" [value]="option[valueProperty]">
       {{ getDisplayText(option) }}
     </mat-option>
@@ -39,7 +39,7 @@
   </mat-hint>
 
   <!-- Mensajes de error -->
-  <mat-error *ngIf="formService.invalid(control)">
+  <mat-error *ngIf="formService.invalid(control) && showMessageError">
     {{ formService.getErrorMessage(control) }}
   </mat-error>
 </mat-form-field>

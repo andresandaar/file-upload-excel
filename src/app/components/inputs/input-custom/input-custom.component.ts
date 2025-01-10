@@ -67,11 +67,12 @@ export class InputCustomComponent implements ControlValueAccessor, OnInit, OnDes
   @Input() min?: number;
   @Input() max?: number;
   @Input() appearance: 'fill' | 'outline' = 'outline';
-  @Input() showCharCount = false;
+  @Input() showCharCount: boolean = false;
+  @Input() showMessageError: boolean = true;
 
   @Input() rows:string = '3';
 
-  @Input() multiple = false;
+  @Input() multiple: boolean = false;
 
   @Input() displayFn: ((item: any) => string) | null = null;
   @Input() filteredOptions!: Observable<any[]> | null;

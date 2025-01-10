@@ -5,3 +5,7 @@
 .full-width{
     width: 100%;
 }
+.field-no-error {
+  width: 100%;
+  margin: 0px;
+}

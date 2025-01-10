@@ -15,12 +15,9 @@
           [class.editable-cell]="isEditing(consumibleFormatDataBase.NOMBRE, i)"
           (click)="startEditing($event, row, consumibleFormatDataBase.NOMBRE, i)">
           @if (isEditing( consumibleFormatDataBase.NOMBRE, i)) {
-            <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NOMBRE)"  maxCharacters="50" (touched)="finishEditing()" (enter)="finishEditing()">
-            </custom-input>
-          <!-- <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.NOMBRE)" (blur)="finishEditing()"
-              (keyup.enter)="finishEditing()">
-          </mat-form-field> -->
+          <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NOMBRE)" maxCharacters="50"
+            (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.NOMBRE], consumibleFormatDataBase.NOMBRE) }}
           }
@@ -34,14 +31,10 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CATEGORIA)"
           (click)="startEditing($event, row, consumibleFormatDataBase.CATEGORIA, i)">
           @if (isEditing( consumibleFormatDataBase.CATEGORIA, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <mat-select [formControl]="getFormControl(i, consumibleFormatDataBase.CATEGORIA)"
-              (selectionChange)="finishEditing()" >
-              <mat-option *ngFor="let cat of selectOptions.categorias" [value]="cat.id">
-                {{cat.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.CATEGORIA)"
+            [options]="selectOptions.categorias" valueProperty="id" displayProperty="name"
+            (optionSelected)="finishEditing()" [showMessageError]="false">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.CATEGORIA], consumibleFormatDataBase.CATEGORIA) }}
           }
@@ -55,11 +48,9 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD)"
           (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD, i)">
           @if (isEditing( consumibleFormatDataBase.CANTIDAD, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.CANTIDAD)"
-              (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-              >
-          </mat-form-field>
+          <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD)" (touched)="finishEditing()"
+            (enter)="finishEditing()" [showMessageError]="false">
+          </input-number>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD], consumibleFormatDataBase.CANTIDAD) }}
           }
@@ -73,11 +64,9 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD_MINIMA)"
           (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD_MINIMA, i)">
           @if (isEditing( consumibleFormatDataBase.CANTIDAD_MINIMA, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.CANTIDAD_MINIMA)"
-              (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-              >
-          </mat-form-field>
+          <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD_MINIMA)"
+            (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
+          </input-number>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD_MINIMA], consumibleFormatDataBase.CANTIDAD_MINIMA) }}
           }
@@ -91,14 +80,10 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FABRICANTE)"
           (click)="startEditing($event, row, consumibleFormatDataBase.FABRICANTE, i)">
           @if (isEditing( consumibleFormatDataBase.FABRICANTE, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <mat-select [formControl]="getFormControl(i, consumibleFormatDataBase.FABRICANTE)"
-              (selectionChange)="finishEditing()" >
-              <mat-option *ngFor="let fab of selectOptions.fabricantes" [value]="fab.id">
-                {{fab.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.FABRICANTE)"
+            [options]="selectOptions.fabricantes" valueProperty="id" displayProperty="name"
+            (optionSelected)="finishEditing()" [showMessageError]="false">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.FABRICANTE], consumibleFormatDataBase.FABRICANTE) }}
           }
@@ -112,10 +97,9 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.MODELO)"
           (click)="startEditing($event, row, consumibleFormatDataBase.MODELO, i)">
           @if (isEditing( consumibleFormatDataBase.MODELO, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.MODELO)" (blur)="finishEditing()"
-              (keyup.enter)="finishEditing()" >
-          </mat-form-field>
+          <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.MODELO)" (touched)="finishEditing()"
+            (enter)="finishEditing()" [showMessageError]="false" maxCharacters="30">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.MODELO], consumibleFormatDataBase.MODELO) }}
           }
@@ -129,14 +113,10 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.PROVEEDOR)"
           (click)="startEditing($event, row, consumibleFormatDataBase.PROVEEDOR, i)">
           @if (isEditing( consumibleFormatDataBase.PROVEEDOR, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <mat-select [formControl]="getFormControl(i, consumibleFormatDataBase.PROVEEDOR)"
-              (selectionChange)="finishEditing()" >
-              <mat-option *ngFor="let prov of selectOptions.proveedores" [value]="prov.id">
-                {{prov.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+          <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.PROVEEDOR)"
+            [options]="selectOptions.proveedores" valueProperty="id" displayProperty="name"
+            (optionSelected)="finishEditing()" [showMessageError]="false">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.PROVEEDOR], consumibleFormatDataBase.PROVEEDOR) }}
           }
@@ -150,10 +130,9 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.COSTO)"
           (click)="startEditing($event, row, consumibleFormatDataBase.COSTO, i)">
           @if (isEditing(consumibleFormatDataBase.COSTO, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.COSTO)" (blur)="finishEditing()"
-              (keyup.enter)="finishEditing()" >
-          </mat-form-field>
+          <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.COSTO)" (touched)="finishEditing()"
+            (enter)="finishEditing()" [currency]="true" [showMessageError]="false">
+          </input-number>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.COSTO], consumibleFormatDataBase.COSTO) }}
           }
@@ -167,11 +146,9 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NUMERO_DE_FACTURA)"
           (click)="startEditing($event, row, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)">
           @if (isEditing( consumibleFormatDataBase.NUMERO_DE_FACTURA, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.NUMERO_DE_FACTURA)"
-              (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-              >
-          </mat-form-field>
+          <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NUMERO_DE_FACTURA)"
+            (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false" maxCharacters="50">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.NUMERO_DE_FACTURA],
           consumibleFormatDataBase.NUMERO_DE_FACTURA) }}
@@ -186,11 +163,10 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FECHA_DE_COMPRA)"
           (click)="startEditing($event, row, consumibleFormatDataBase.FECHA_DE_COMPRA, i)">
           @if (isEditing( consumibleFormatDataBase.FECHA_DE_COMPRA, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.FECHA_DE_COMPRA)"
-              (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-              >
-          </mat-form-field>
+          <input-date [formControl]="getFormControl(i,consumibleFormatDataBase.FECHA_DE_COMPRA)"
+           (dateChange)="finishEditing()"
+            [showMessageError]="false">
+          </input-date>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.FECHA_DE_COMPRA], consumibleFormatDataBase.FECHA_DE_COMPRA) }}
           }
@@ -204,11 +180,10 @@
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.OBSERVACIONES)"
           (click)="startEditing($event, row, consumibleFormatDataBase.OBSERVACIONES, i)">
           @if (isEditing(consumibleFormatDataBase.OBSERVACIONES, i)) {
-          <mat-form-field class="edit-field" (click)="$event.stopPropagation()">
-            <input matInput [formControl]="getFormControl(i, consumibleFormatDataBase.OBSERVACIONES)"
-              (blur)="finishEditing()" (keyup.enter)="finishEditing()"
-              >
-          </mat-form-field>
+          <custom-input inputType="textarea" [showMessageError]="false"
+            [formControl]="getFormControl(i,consumibleFormatDataBase.OBSERVACIONES)" maxCharacters="200"
+            (touched)="finishEditing()" (enter)="finishEditing()" rows="4">
+          </custom-input>
           }@else {
           {{ formatCellValue(row[consumibleFormatDataBase.OBSERVACIONES], consumibleFormatDataBase.OBSERVACIONES) }}
           }
@@ -257,12 +232,11 @@
 
   <!-- Submit Button -->
   <div class="submit-container">
-    @if (!formInValid()) { <button
-      mat-raised-button color="primary" (click)="onSubmit()">
+    @if (!formInValid()) { <button mat-raised-button color="primary" (click)="onSubmit()">
       {{ 'Subir información' }}
-      </button>
-      } @else if(formInValid()) {
-      <p>{{'Corrige los errores para continuar'}}</p>
-      }
+    </button>
+    } @else if(formInValid()) {
+    <p>{{'Corrige los errores para continuar'}}</p>
+    }
   </div>
 </div>
