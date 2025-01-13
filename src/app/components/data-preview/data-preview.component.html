@@ -9,7 +9,7 @@
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NOMBRE)"
           [class.editable-cell]="isEditing(consumibleFormatDataBase.NOMBRE, i)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.NOMBRE, i)">
+          (click)="startEditing($event,consumibleFormatDataBase.NOMBRE, i)">
           @if (isEditing( consumibleFormatDataBase.NOMBRE, i)) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NOMBRE)" maxCharacters="50"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
@@ -25,7 +25,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CATEGORIA}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CATEGORIA)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.CATEGORIA, i)">
+          (click)="startEditing($event,consumibleFormatDataBase.CATEGORIA, i)">
           @if (isEditing( consumibleFormatDataBase.CATEGORIA, i)) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.CATEGORIA)"
             [options]="selectOptions.categorias" valueProperty="id" displayProperty="name"
@@ -42,7 +42,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD, i)">
+          (click)="startEditing($event,consumibleFormatDataBase.CANTIDAD, i)">
           @if (isEditing( consumibleFormatDataBase.CANTIDAD, i)) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD)" (touched)="finishEditing()"
             (enter)="finishEditing()" [showMessageError]="false">
@@ -58,7 +58,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD_MINIMA}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD_MINIMA)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.CANTIDAD_MINIMA, i)">
+          (click)="startEditing($event,consumibleFormatDataBase.CANTIDAD_MINIMA, i)">
           @if (isEditing( consumibleFormatDataBase.CANTIDAD_MINIMA, i)) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD_MINIMA)"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
@@ -74,7 +74,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FABRICANTE}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FABRICANTE)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.FABRICANTE, i)">
+          (click)="startEditing($event, consumibleFormatDataBase.FABRICANTE, i)">
           @if (isEditing( consumibleFormatDataBase.FABRICANTE, i)) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.FABRICANTE)"
             [options]="selectOptions.fabricantes" valueProperty="id" displayProperty="name"
@@ -91,7 +91,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.MODELO}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.MODELO)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.MODELO, i)">
+          (click)="startEditing($event,consumibleFormatDataBase.MODELO, i)">
           @if (isEditing( consumibleFormatDataBase.MODELO, i)) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.MODELO)" (touched)="finishEditing()"
             (enter)="finishEditing()" [showMessageError]="false" maxCharacters="30">
@@ -107,7 +107,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.PROVEEDOR}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.PROVEEDOR)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.PROVEEDOR, i)">
+          (click)="startEditing($event, consumibleFormatDataBase.PROVEEDOR, i)">
           @if (isEditing( consumibleFormatDataBase.PROVEEDOR, i)) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.PROVEEDOR)"
             [options]="selectOptions.proveedores" valueProperty="id" displayProperty="name"
@@ -124,7 +124,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.COSTO}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.COSTO)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.COSTO, i)">
+          (click)="startEditing($event,  consumibleFormatDataBase.COSTO, i)">
           @if (isEditing(consumibleFormatDataBase.COSTO, i)) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.COSTO)" (touched)="finishEditing()"
             (enter)="finishEditing()" [currency]="true" [showMessageError]="false">
@@ -140,7 +140,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.NUMERO_DE_FACTURA}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NUMERO_DE_FACTURA)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)">
+          (click)="startEditing($event, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)">
           @if (isEditing( consumibleFormatDataBase.NUMERO_DE_FACTURA, i)) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NUMERO_DE_FACTURA)"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false" maxCharacters="50">
@@ -157,7 +157,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FECHA_DE_COMPRA}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FECHA_DE_COMPRA)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.FECHA_DE_COMPRA, i)">
+          (click)="startEditing($event, consumibleFormatDataBase.FECHA_DE_COMPRA, i)">
           @if (isEditing( consumibleFormatDataBase.FECHA_DE_COMPRA, i)) {
           <input-date [formControl]="getFormControl(i,consumibleFormatDataBase.FECHA_DE_COMPRA)"
            (dateChange)="finishEditing()"
@@ -174,7 +174,7 @@
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.OBSERVACIONES}}</th>
         <td mat-cell *matCellDef="let row; let i = index"
           [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.OBSERVACIONES)"
-          (click)="startEditing($event, row, consumibleFormatDataBase.OBSERVACIONES, i)">
+          (click)="startEditing($event, consumibleFormatDataBase.OBSERVACIONES, i)">
           @if (isEditing(consumibleFormatDataBase.OBSERVACIONES, i)) {
           <custom-input inputType="textarea" [showMessageError]="false"
             [formControl]="getFormControl(i,consumibleFormatDataBase.OBSERVACIONES)" maxCharacters="200"

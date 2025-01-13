@@ -5,11 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ExcelProcessorService } from '../../services/excel-processor.service';
 import { EXCEL_CONSUMIBLES_CONFIG } from '../../config/excel-config';
-import { NgxFileDropComponent } from '../ngx-file-drop/ngx-file-drop.component';
-import { NgxFileDropEntry } from '../ngx-file-drop/ngx-file-drop-entry';
-import { NgxFileDropContentTemplateDirective } from '../ngx-file-drop/directive/ngx-templates.directive';
 import { ChipComponent } from '../chip/chip.component';
-
+import { NgxFileDropComponent, NgxFileDropEntry, NgxFileDropModule } from 'ngx-file-drop';
 /**
  * Componente para la carga y procesamiento de archivos Excel
  */
@@ -21,8 +18,7 @@ import { ChipComponent } from '../chip/chip.component';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    NgxFileDropComponent,
-    NgxFileDropContentTemplateDirective,
+    NgxFileDropModule,
     ChipComponent
   ],
   templateUrl: './file-upload.component.html',
@@ -45,7 +41,7 @@ export class FileUploadComponent {
    */
   clearFile(): void {
     if (this.currentFile()) {
-      this.fileDropComponent.resetFileInput()
+      // this.fileDropComponent.resetFileInput()
       this.currentFile.set(null);
       this.currentFileName.set(null);
       this.dataLoaded.emit([]);
@@ -77,5 +73,6 @@ export class FileUploadComponent {
       });
     }
   }
-
+// referencias
+// https://stackblitz.com/edit/angular-ngx-file-drop-example-dewyea?file=src%2Fapp%2Fapp.component.ts
 }

@@ -218,7 +218,7 @@ export class DataPreviewComponent implements AfterViewInit {
    * @param column Nombre de la columna
    * @param rowIndex Índice de la fila
    */
-  startEditing(event: MouseEvent, row: DataPreviewRow, column: string, rowIndex: number) {
+  startEditing(event: MouseEvent, column: string, rowIndex: number) {
     event.stopPropagation();
     this.editingCell.set({ row: rowIndex, column });
   }
