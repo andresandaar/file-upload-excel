@@ -6,7 +6,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';;
 import { MatButtonModule } from '@angular/material/button';
-import { DataPreviewRow, ErrorsByRow, SelectOptions, ValidationError } from '../../models/data-preview.interface';
+import { DataPreviewRow, DisplayedColumn, ErrorsByRow, SelectOptions, ValidationError } from '../../models/data-preview.interface';
 import { CONSUMIBLE_FORMAT_DATA_BASE, CONSUMIBLE_FORMAT_EXCEL_HEADERS } from '../../config/consumible-format';
 import { FormBuilder, FormGroup, FormControl, Validators, FormArray, AbstractControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormService } from '../../services/form-service.service';
@@ -82,18 +82,18 @@ export class DataPreviewComponent implements AfterViewInit {
   /**
    * Columnas a mostrar en la tabla
    */
-  displayedColumns: string[] = [
-    this.consumibleFormatDataBase.NOMBRE,
-    this.consumibleFormatDataBase.CATEGORIA,
-    this.consumibleFormatDataBase.CANTIDAD,
-    this.consumibleFormatDataBase.CANTIDAD_MINIMA,
-    this.consumibleFormatDataBase.FABRICANTE,
-    this.consumibleFormatDataBase.MODELO,
-    this.consumibleFormatDataBase.PROVEEDOR,
-    this.consumibleFormatDataBase.COSTO,
-    this.consumibleFormatDataBase.NUMERO_DE_FACTURA,
-    this.consumibleFormatDataBase.FECHA_DE_COMPRA,
-    this.consumibleFormatDataBase.OBSERVACIONES
+  displayedColumnsConfig: DisplayedColumn[] = [
+    { dataCellName: this.consumibleFormatDataBase.NOMBRE, headerCellName: this.consumibleFormatExcelHeaders.NOMBRE },
+    { dataCellName: this.consumibleFormatDataBase.CATEGORIA, headerCellName: this.consumibleFormatExcelHeaders.CATEGORIA },
+    { dataCellName: this.consumibleFormatDataBase.CANTIDAD, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD },
+    { dataCellName: this.consumibleFormatDataBase.CANTIDAD_MINIMA, headerCellName: this.consumibleFormatExcelHeaders.CANTIDAD_MINIMA },
+    { dataCellName: this.consumibleFormatDataBase.FABRICANTE, headerCellName: this.consumibleFormatExcelHeaders.FABRICANTE },
+    { dataCellName: this.consumibleFormatDataBase.MODELO, headerCellName: this.consumibleFormatExcelHeaders.MODELO },
+    { dataCellName: this.consumibleFormatDataBase.PROVEEDOR, headerCellName: this.consumibleFormatExcelHeaders.PROVEEDOR },
+    { dataCellName: this.consumibleFormatDataBase.COSTO, headerCellName: this.consumibleFormatExcelHeaders.COSTO },
+    { dataCellName: this.consumibleFormatDataBase.NUMERO_DE_FACTURA, headerCellName: this.consumibleFormatExcelHeaders.NUMERO_DE_FACTURA },
+    { dataCellName: this.consumibleFormatDataBase.FECHA_DE_COMPRA, headerCellName: this.consumibleFormatExcelHeaders.FECHA_DE_COMPRA },
+    { dataCellName: this.consumibleFormatDataBase.OBSERVACIONES, headerCellName: this.consumibleFormatExcelHeaders.OBSERVACIONES },
   ];
 
   /**
@@ -584,5 +584,8 @@ export class DataPreviewComponent implements AfterViewInit {
     //   });
     //   this.submitData.emit(cleanData);
     // }
+  }
+  getDisplayedColumns(): string[] {
+    return this.displayedColumnsConfig.map(column => column.dataCellName);
   }
 }

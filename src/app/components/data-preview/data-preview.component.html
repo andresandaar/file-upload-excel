@@ -2,193 +2,95 @@
   <div class="table-container mat-elevation-z8" #container>
     <table mat-table [dataSource]="dataSource()" matSort aria-headerCellName="Data preview table"
       aria-label="Data preview table">
+      <ng-container *ngFor="let column of displayedColumnsConfig" [matColumnDef]="column.dataCellName">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ column.headerCellName }}</th>
+        <td mat-cell *matCellDef="let row; let i = index" [class.error-cell]="hasErrorInCell(row, column.dataCellName)"
+          [class.editable-cell]="isEditing(column.dataCellName, i)"
+          (click)="startEditing($event,column.dataCellName, i)">
+          @if (isEditing(column.dataCellName, i)) {
 
-      <!-- Columna Nombre -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.NOMBRE">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.NOMBRE}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NOMBRE)"
-          [class.editable-cell]="isEditing(consumibleFormatDataBase.NOMBRE, i)"
-          (click)="startEditing($event,consumibleFormatDataBase.NOMBRE, i)">
-          @if (isEditing( consumibleFormatDataBase.NOMBRE, i)) {
+          @switch (column.dataCellName) {
+
+          <!-- Columna Nombre -->
+          @case (consumibleFormatDataBase.NOMBRE) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NOMBRE)" maxCharacters="50"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.NOMBRE], consumibleFormatDataBase.NOMBRE) }}
           }
-        </td>
-      </ng-container>
-
-      <!-- Columna Categoría -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.CATEGORIA">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CATEGORIA}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CATEGORIA)"
-          (click)="startEditing($event,consumibleFormatDataBase.CATEGORIA, i)">
-          @if (isEditing( consumibleFormatDataBase.CATEGORIA, i)) {
+          <!-- Columna Categoría -->
+          @case (consumibleFormatDataBase.CATEGORIA) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.CATEGORIA)"
             [options]="selectOptions.categorias" valueProperty="id" displayProperty="name"
             (optionSelected)="finishEditing()" [showMessageError]="false">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.CATEGORIA], consumibleFormatDataBase.CATEGORIA) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Cantidad -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.CANTIDAD">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD)"
-          (click)="startEditing($event,consumibleFormatDataBase.CANTIDAD, i)">
-          @if (isEditing( consumibleFormatDataBase.CANTIDAD, i)) {
+          <!-- Columna Cantidad -->
+          }@case (consumibleFormatDataBase.CANTIDAD) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD)" (touched)="finishEditing()"
             (enter)="finishEditing()" [showMessageError]="false">
           </input-number>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD], consumibleFormatDataBase.CANTIDAD) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Cantidad Mínima -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.CANTIDAD_MINIMA">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.CANTIDAD_MINIMA}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.CANTIDAD_MINIMA)"
-          (click)="startEditing($event,consumibleFormatDataBase.CANTIDAD_MINIMA, i)">
-          @if (isEditing( consumibleFormatDataBase.CANTIDAD_MINIMA, i)) {
+          <!-- Columna Cantidad Mínima -->
+          }@case (consumibleFormatDataBase.CANTIDAD_MINIMA) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.CANTIDAD_MINIMA)"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false">
           </input-number>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.CANTIDAD_MINIMA], consumibleFormatDataBase.CANTIDAD_MINIMA) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Fabricante -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.FABRICANTE">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FABRICANTE}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FABRICANTE)"
-          (click)="startEditing($event, consumibleFormatDataBase.FABRICANTE, i)">
-          @if (isEditing( consumibleFormatDataBase.FABRICANTE, i)) {
+          <!-- Columna Fabricante -->
+          }@case (consumibleFormatDataBase.FABRICANTE) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.FABRICANTE)"
             [options]="selectOptions.fabricantes" valueProperty="id" displayProperty="name"
             (optionSelected)="finishEditing()" [showMessageError]="false">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.FABRICANTE], consumibleFormatDataBase.FABRICANTE) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Modelo -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.MODELO">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.MODELO}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.MODELO)"
-          (click)="startEditing($event,consumibleFormatDataBase.MODELO, i)">
-          @if (isEditing( consumibleFormatDataBase.MODELO, i)) {
+          <!-- Columna Modelo -->
+          }@case (consumibleFormatDataBase.MODELO) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.MODELO)" (touched)="finishEditing()"
             (enter)="finishEditing()" [showMessageError]="false" maxCharacters="30">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.MODELO], consumibleFormatDataBase.MODELO) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Proveedor -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.PROVEEDOR">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.PROVEEDOR}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.PROVEEDOR)"
-          (click)="startEditing($event, consumibleFormatDataBase.PROVEEDOR, i)">
-          @if (isEditing( consumibleFormatDataBase.PROVEEDOR, i)) {
+          <!-- Columna Proveedor -->
+          }@case (consumibleFormatDataBase.PROVEEDOR) {
           <custom-input inputType="select" [formControl]="getFormControl(i,consumibleFormatDataBase.PROVEEDOR)"
             [options]="selectOptions.proveedores" valueProperty="id" displayProperty="name"
             (optionSelected)="finishEditing()" [showMessageError]="false">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.PROVEEDOR], consumibleFormatDataBase.PROVEEDOR) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna costo -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.COSTO">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.COSTO}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.COSTO)"
-          (click)="startEditing($event,  consumibleFormatDataBase.COSTO, i)">
-          @if (isEditing(consumibleFormatDataBase.COSTO, i)) {
+          <!-- Columna costo -->
+          }@case (consumibleFormatDataBase.COSTO) {
           <input-number [formControl]="getFormControl(i,consumibleFormatDataBase.COSTO)" (touched)="finishEditing()"
             (enter)="finishEditing()" [currency]="true" [showMessageError]="false">
           </input-number>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.COSTO], consumibleFormatDataBase.COSTO) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Número de Factura -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.NUMERO_DE_FACTURA">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.NUMERO_DE_FACTURA}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.NUMERO_DE_FACTURA)"
-          (click)="startEditing($event, consumibleFormatDataBase.NUMERO_DE_FACTURA, i)">
-          @if (isEditing( consumibleFormatDataBase.NUMERO_DE_FACTURA, i)) {
+          <!-- Columna Número de Factura -->
+          }@case (consumibleFormatDataBase.NUMERO_DE_FACTURA) {
           <custom-input [formControl]="getFormControl(i,consumibleFormatDataBase.NUMERO_DE_FACTURA)"
             (touched)="finishEditing()" (enter)="finishEditing()" [showMessageError]="false" maxCharacters="50">
           </custom-input>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.NUMERO_DE_FACTURA],
-          consumibleFormatDataBase.NUMERO_DE_FACTURA) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Fecha de Compra -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.FECHA_DE_COMPRA">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.FECHA_DE_COMPRA}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.FECHA_DE_COMPRA)"
-          (click)="startEditing($event, consumibleFormatDataBase.FECHA_DE_COMPRA, i)">
-          @if (isEditing( consumibleFormatDataBase.FECHA_DE_COMPRA, i)) {
+          <!-- Columna Fecha de Compra -->
+          }@case (consumibleFormatDataBase.FECHA_DE_COMPRA) {
           <input-date [formControl]="getFormControl(i,consumibleFormatDataBase.FECHA_DE_COMPRA)"
-           (dateChange)="finishEditing()"
-            [showMessageError]="false">
+            (dateChange)="finishEditing()" [showMessageError]="false">
           </input-date>
-          }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.FECHA_DE_COMPRA], consumibleFormatDataBase.FECHA_DE_COMPRA) }}
-          }
-        </td>
-      </ng-container>
 
-      <!-- Columna Observaciones -->
-      <ng-container [matColumnDef]="consumibleFormatDataBase.OBSERVACIONES">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{consumibleFormatExcelHeaders.OBSERVACIONES}}</th>
-        <td mat-cell *matCellDef="let row; let i = index"
-          [class.error-cell]="hasErrorInCell(row, consumibleFormatDataBase.OBSERVACIONES)"
-          (click)="startEditing($event, consumibleFormatDataBase.OBSERVACIONES, i)">
-          @if (isEditing(consumibleFormatDataBase.OBSERVACIONES, i)) {
+          <!-- Columna Observaciones -->
+          }@case (consumibleFormatDataBase.OBSERVACIONES) {
           <custom-input inputType="textarea" [showMessageError]="false"
             [formControl]="getFormControl(i,consumibleFormatDataBase.OBSERVACIONES)" maxCharacters="200"
             (touched)="finishEditing()" (enter)="finishEditing()" rows="4">
           </custom-input>
+          }
+          }
           }@else {
-          {{ formatCellValue(row[consumibleFormatDataBase.OBSERVACIONES], consumibleFormatDataBase.OBSERVACIONES) }}
+          {{ formatCellValue(row[column.dataCellName], column.dataCellName) }}
           }
         </td>
       </ng-container>
 
       <!-- Filas de Cabecera y Datos -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true" class="header-row"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.error-row]="hasErrorsInRow(row)"></tr>
+      <tr mat-header-row *matHeaderRowDef="getDisplayedColumns(); sticky: true" class="header-row"></tr>
+      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns();" [class.error-row]="hasErrorsInRow(row)"></tr>
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-headerCellName="Seleccionar página"></mat-paginator>
   </div>
